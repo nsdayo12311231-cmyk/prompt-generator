@@ -22,6 +22,9 @@ export default async function handler(req, res) {
     // OpenAI API Key from environment variables (server-side)
     const openaiApiKey = process.env.OPENAI_API_KEY;
     
+    console.log('DEBUG: Environment OPENAI_API_KEY exists:', !!openaiApiKey);
+    console.log('DEBUG: Environment OPENAI_API_KEY length:', openaiApiKey?.length || 0);
+    
     if (!openaiApiKey) {
         return res.status(500).json({ error: 'OpenAI API key not configured' });
     }
