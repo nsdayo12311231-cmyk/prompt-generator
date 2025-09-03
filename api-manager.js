@@ -26,7 +26,6 @@ class APIManager {
             this.apis.push(new ClaudeAPI());
         }
         
-        console.log(`${this.apis.length}個のAPIが利用可能です`);
     }
     
     // メインのプロンプト生成関数（フォールバック機能付き）
@@ -38,15 +37,12 @@ class APIManager {
             const api = this.apis[this.currentAPIIndex];
             
             try {
-                console.log(`${api.name} で生成試行中...`);
                 const result = await this.callWithRetry(api, keyword);
                 
                 // 成功した場合
-                console.log(`${api.name} で生成成功`);
                 return result;
                 
             } catch (error) {
-                console.warn(`${api.name} でエラー:`, error.message);
                 lastError = error;
                 
                 // 次のAPIに切り替え
@@ -90,7 +86,6 @@ class APIManager {
                 
                 // 指数バックオフでリトライ
                 const delay = Math.pow(2, retryCount) * 1000;
-                console.log(`${api.name}: ${delay}ms後にリトライ...`);
                 await this.sleep(delay);
             }
         }
@@ -149,28 +144,6 @@ class APIManager {
         return new Promise(resolve => setTimeout(resolve, ms));
     }
     
-    // 翻訳専用API呼び出し（軽量版）
-    async callTranslationAPI(translationPrompt) {
-        if (this.apis.length === 0) {
-            throw new Error('利用可能なAPIがありません');
-        }
-        
-        const api = this.apis[this.currentAPIIndex];
-        
-        try {
-            console.log(`${api.name} で翻訳処理中...`);
-            
-            // 翻訳用の軽量プロンプトで呼び出し
-            const result = await api.translateText(translationPrompt);
-            
-            console.log(`${api.name} で翻訳成功`);
-            return result;
-            
-        } catch (error) {
-            console.warn(`${api.name} 翻訳エラー:`, error.message);
-            throw error;
-        }
-    }
     
     // 統計情報取得
     getStats() {
@@ -262,182 +235,14 @@ class GeminiAPI {
         }
     }
     
-    // 翻訳専用メソッド
-    async translateText(translationPrompt) {
-        const requestBody = {
-            contents: [{
-                parts: [{
-                    text: translationPrompt
-                }]
-            }]
-        };
-        
-        const response = await fetch(`${this.config.ENDPOINT}?key=${this.config.API_KEY}`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(requestBody)
-        });
-        
-        if (!response.ok) {
-            throw new Error(`Gemini翻訳APIエラー: ${response.status} ${response.statusText}`);
-        }
-        
-        const data = await response.json();
-        
-        if (data.candidates && data.candidates[0] && data.candidates[0].content) {
-            const translatedText = data.candidates[0].content.parts[0].text.trim();
-            return translatedText;
-        } else {
-            throw new Error('翻訳APIからの応答が不正です');
-        }
-    }
 }
 
-// OpenAI API実装
-class OpenAIAPI {
-    constructor() {
-        this.name = 'OpenAI';
-        this.config = API_CONFIG.OPENAI;
-    }
-    
-    async generatePrompt(keyword) {
-        const requestBody = {
-            model: this.config.MODEL,
-            messages: [{
-                role: 'user',
-                content: this.buildSystemPrompt(keyword)
-            }],
-            max_tokens: 150,
-            temperature: 0.7
-        };
-        
-        const response = await fetch(this.config.ENDPOINT, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${this.config.API_KEY}`
-            },
-            body: JSON.stringify(requestBody)
-        });
-        
-        if (!response.ok) {
-            throw new Error(`OpenAI API エラー: ${response.status} ${response.statusText}`);
-        }
-        
-        const data = await response.json();
-        return this.parseResponse(data);
-    }
-    
-    buildSystemPrompt(keyword) {
-        return `Convert this Japanese keyword to 3-8 English words/phrases for Stable Diffusion:
 
-Keyword: ${keyword}
-
-Requirements:
-- Output 3-8 concise words or short phrases
-- Separate by commas or newlines
-- No explanations needed
-
-Example:
-頭 → head, portrait, face, hair, expression, closeup
-悲しい → sad, crying, melancholy, tears, depressed`;
-    }
-    
-    parseResponse(data) {
-        if (data.choices && data.choices[0] && data.choices[0].message) {
-            const generatedText = data.choices[0].message.content;
-            const prompts = generatedText
-                .replace(/→.*$/gm, '')
-                .split(/[\n,]+/)
-                .map(prompt => prompt.trim())
-                .filter(prompt => prompt.length > 0 && !prompt.includes('Keyword') && !prompt.includes('Example'));
-            
-            if (prompts.length === 0) {
-                throw new Error('有効なプロンプトが生成されませんでした');
-            }
-            
-            return prompts;
-        } else {
-            throw new Error('OpenAI APIからの応答が不正です');
-        }
-    }
-}
-
-// Claude API実装
-class ClaudeAPI {
-    constructor() {
-        this.name = 'Claude';
-        this.config = API_CONFIG.CLAUDE;
-    }
-    
-    async generatePrompt(keyword) {
-        const requestBody = {
-            model: this.config.MODEL,
-            max_tokens: 150,
-            messages: [{
-                role: 'user',
-                content: this.buildSystemPrompt(keyword)
-            }]
-        };
-        
-        const response = await fetch(this.config.ENDPOINT, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'x-api-key': this.config.API_KEY,
-                'anthropic-version': '2023-06-01'
-            },
-            body: JSON.stringify(requestBody)
-        });
-        
-        if (!response.ok) {
-            throw new Error(`Claude API エラー: ${response.status} ${response.statusText}`);
-        }
-        
-        const data = await response.json();
-        return this.parseResponse(data);
-    }
-    
-    buildSystemPrompt(keyword) {
-        return `日本語キーワードをStable Diffusion用英語プロンプトに変換：
-
-キーワード: ${keyword}
-
-3-8個の簡潔な英語単語/短文を出力。改行またはカンマ区切り。説明不要。
-
-例:
-頭 → head, portrait, face, hair, expression
-悲しい → sad, crying, melancholy, tears, depressed`;
-    }
-    
-    parseResponse(data) {
-        if (data.content && data.content[0] && data.content[0].text) {
-            const generatedText = data.content[0].text;
-            const prompts = generatedText
-                .replace(/→.*$/gm, '')
-                .split(/[\n,]+/)
-                .map(prompt => prompt.trim())
-                .filter(prompt => prompt.length > 0 && !prompt.includes('キーワード') && !prompt.includes('例:'));
-            
-            if (prompts.length === 0) {
-                throw new Error('有効なプロンプトが生成されませんでした');
-            }
-            
-            return prompts;
-        } else {
-            throw new Error('Claude APIからの応答が不正です');
-        }
-    }
-}
 
 // エクスポート
 if (typeof module !== 'undefined' && module.exports) {
-    module.exports = { APIManager, GeminiAPI, OpenAIAPI, ClaudeAPI };
+    module.exports = { APIManager, GeminiAPI };
 } else {
     window.APIManager = APIManager;
     window.GeminiAPI = GeminiAPI;
-    window.OpenAIAPI = OpenAIAPI;
-    window.ClaudeAPI = ClaudeAPI;
 }
