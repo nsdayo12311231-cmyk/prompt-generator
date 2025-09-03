@@ -11,15 +11,25 @@ class APIManager {
     
     // API初期化
     initializeAPIs() {
+        console.log('DEBUG: API初期化開始');
+        console.log('DEBUG: GEMINI.ENABLED:', API_CONFIG.GEMINI.ENABLED);
+        console.log('DEBUG: OPENAI.ENABLED:', API_CONFIG.OPENAI.ENABLED);
+        console.log('DEBUG: OPENAI.API_KEY exists:', !!API_CONFIG.OPENAI.API_KEY && API_CONFIG.OPENAI.API_KEY !== 'YOUR_OPENAI_API_KEY_HERE');
+        
         // Gemini API
         if (API_CONFIG.GEMINI.ENABLED) {
+            console.log('DEBUG: Gemini API追加');
             this.apis.push(new GeminiAPI());
         }
         
         // OpenAI API
         if (API_CONFIG.OPENAI.ENABLED) {
+            console.log('DEBUG: OpenAI API追加');
             this.apis.push(new OpenAIAPI());
         }
+        
+        console.log('DEBUG: 初期化完了, APIs数:', this.apis.length);
+        console.log('DEBUG: APIs:', this.apis.map(api => api.name));
     }
     
     // 翻訳専用API呼び出し
@@ -55,12 +65,15 @@ class APIManager {
             const api = this.apis[this.currentAPIIndex];
             
             try {
+                console.log('DEBUG: API試行中:', api.name);
                 const result = await this.callWithRetry(api, keyword, modelType);
+                console.log('DEBUG: API成功:', api.name, result);
                 
                 // 成功した場合
                 return result;
                 
             } catch (error) {
+                console.error('DEBUG: API失敗:', api.name, error);
                 lastError = error;
                 
                 // 次のAPIに切り替え
