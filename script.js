@@ -138,10 +138,17 @@ async function translateToJapanese(englishPrompt) {
         'embarrassed': '恥ずかしい思いをしている人',
         
         // 特定の状況・行動  
-        'troubled man': '悩んでいる男性', 'distressed man': '苦悩している男性',
-        'worried man': '心配している男性', 'anxious man': '不安に思っている男性',
-        'upset man': '落ち込んでいる男性', 'despondent man': '絶望している男性',
-        'man in despair': '絶望の中にいる男性', 'man in trouble': '困っている男性'
+        'troubled': '悩んでいる', 'distressed': '苦悩している', 'worried': '心配している',
+        'anxious': '不安に思っている', 'upset': '落ち込んでいる', 'desperate': '絶望している',
+        'suffering': '苦しんでいる', 'needing': '必要としている', 'help': '助け',
+        'person': '人', 'individual': '個人', 'man': '男性', 'woman': '女性',
+        'trouble': '困った状況', 'need': '必要性', 'despair': '絶望',
+        // 組み合わせフレーズ
+        'a person in trouble': '困っている人', 'person in trouble': '困っている人',
+        'distressed person': '苦悩している人', 'troubled individual': '悩んでいる個人',
+        'someone in need': '助けを必要としている人', 'person needing help': '助けを求めている人',
+        'person suffering': '苦しんでいる人', 'worried person': '心配している人',
+        'desperate person': '絶望している人'
     };
     
     const result = englishPrompt.toLowerCase().trim();
@@ -160,50 +167,51 @@ async function translateToJapanese(englishPrompt) {
     
     const dictionaryResult = translatedWords.join(' ');
     
-    // API翻訳が必要か判定（英単語が残っているまたは不自然な翻訳）
-    const hasUntranslated = translatedWords.some(word => 
-        /^[a-z]+$/i.test(word) && word.length > 2
-    ) || dictionaryResult.includes('の') && !result.includes('face') && !result.includes('eyes');
+    // 辞書翻訳が不完全な場合、API翻訳を実行
+    const needsAPITranslation = dictionaryResult === result || 
+                               translatedWords.some(word => /^[a-z]+$/i.test(word) && word.length > 2) ||
+                               dictionaryResult.includes('の') && !result.includes('face');
     
-    if (hasUntranslated && apiManager) {
+    if (needsAPITranslation && apiManager) {
         try {
             const apiTranslation = await translateWithAPI(englishPrompt);
-            if (apiTranslation && apiTranslation !== englishPrompt) {
+            if (apiTranslation && apiTranslation.trim() !== englishPrompt && apiTranslation.trim().length > 0) {
                 return apiTranslation;
             }
         } catch (error) {
-            // API失敗時は辞書結果を使用
+            console.warn('API翻訳エラー:', error);
         }
     }
     
-    return dictionaryResult || `(${englishPrompt})`;
+    // 辞書翻訳がある場合はそれを使用、ない場合は元のテキスト
+    return dictionaryResult !== result ? dictionaryResult : `(${englishPrompt})`;
 }
 
-// API翻訳機能（GPT級の高品質翻訳）
+// API翻訳機能（コスト最適化版）
 async function translateWithAPI(englishPrompt) {
     if (!apiManager) {
         return null;
     }
     
-    const translationPrompt = `あなたはStable Diffusion画像生成に精通した翻訳の専門家です。
-以下の英語プロンプトを、SD初心者にもわかりやすい自然な日本語に翻訳してください。
+    // 簡潔なプロンプトでコスト減
+    const translationPrompt = `以下を自然な日本語に翻訳。SD画像生成用プロンプトです。翻訳のみ出力し、説明不要。
 
-翻訳ルール:
-- 画像生成の文脈を考慮して翻訳
-- 初心者向けに分かりやすい表現を使用
-- 不自然な「の」の連続は避ける
-- 感情や状態は「〜な人」「〜している人」など自然な表現にする
-- 翻訳結果のみを出力（説明は不要）
-
-英語プロンプト: ${englishPrompt}
-
-日本語翻訳:`;
+"${englishPrompt}"`;
     
     try {
         const result = await apiManager.callTranslationAPI(translationPrompt);
-        // 「日本語翻訳:」がある場合は除去
-        return result.replace(/^.*日本語翻訳:\s*/i, '').trim();
+        if (!result) return null;
+        
+        // 不要なプレフィクスを除去
+        const cleaned = result
+            .replace(/^.*[""]「?([^\"]+)[""]」?.*$/g, '$1')
+            .replace(/^.*翻訳:\s*/i, '')
+            .replace(/^.*:　?/g, '')
+            .trim();
+            
+        return cleaned.length > 0 ? cleaned : null;
     } catch (error) {
+        console.warn('API翻訳エラー:', error);
         throw error;
     }
 }
