@@ -53,6 +53,36 @@ body {
     margin-bottom: 30px;
 }
 
+.model-url-section {
+    margin-top: 15px;
+    padding-top: 15px;
+    border-top: 1px solid #e9ecef;
+}
+
+.model-url-input {
+    width: 100%;
+    padding: 12px 15px;
+    border: 2px solid #e1e5e9;
+    border-radius: 8px;
+    font-size: 0.95rem;
+    transition: border-color 0.3s;
+    background: #f8f9fa;
+}
+
+.model-url-input:focus {
+    outline: none;
+    border-color: #667eea;
+    background: white;
+}
+
+.model-url-hint {
+    display: block;
+    font-size: 0.8rem;
+    color: #888;
+    margin-top: 5px;
+    font-style: italic;
+}
+
 .input-group {
     display: flex;
     gap: 15px;

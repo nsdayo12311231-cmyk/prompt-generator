@@ -207,19 +207,21 @@ class GeminiAPI {
     }
     
     buildSystemPrompt(keyword) {
-        return `あなたはStable Diffusion画像生成のエキスパートです。Gemini 1.5 Flashの高性能を活かし、日本語キーワードから最適な英語プロンプトを生成してください。
+        return `あなたはStable Diffusionモデルに精通したエキスパートです。特にPrefect Illustrious XLなどのアニメ系モデルに特化したプロンプトを生成してください。
 
 キーワード: ${keyword}
 
 生成ルール:
-- 3-8個の高品質な候補を出力
-- SDで効果的な簡潔な英語フレーズ
-- 改行またはカンマで区切り
+- 3-8個の高品質プロンプトを出力
+- アニメ・イラスト系モデルに最適化
+- 特に女性キャラクターに特化した表現
+- 品質向上タグと組み合わせて生成
 - プロンプトのみ出力（説明無し）
 
-例示:
-頭 → head, portrait, face closeup, hair detail, facial expression, bust shot
-悲しい → sad, crying, melancholy, tearful, depressed, sorrowful expression`;
+アニメ系モデル向け例示:
+美しい女性 → beautiful girl, 1girl, masterpiece, best quality, detailed face, anime style
+笑顔 → smile, happy expression, cheerful, bright eyes, cute smile, joyful
+髪型 → long hair, flowing hair, beautiful hair, hair ornament, detailed hair`;
     }
     
     parseResponse(data) {
