@@ -24,6 +24,8 @@ export default async function handler(req, res) {
     
     console.log('DEBUG: Environment OPENAI_API_KEY exists:', !!openaiApiKey);
     console.log('DEBUG: Environment OPENAI_API_KEY length:', openaiApiKey?.length || 0);
+    console.log('DEBUG: Received keyword:', keyword);
+    console.log('DEBUG: Model type:', modelType);
     
     if (!openaiApiKey) {
         return res.status(500).json({ error: 'OpenAI API key not configured' });
@@ -32,39 +34,38 @@ export default async function handler(req, res) {
     // Build system prompt based on model type
     let systemPrompt;
     if (modelType === 'illustrious') {
-        systemPrompt = `Generate 5-8 high-quality Stable Diffusion prompts optimized for Illustrious XL model (anime/illustration style).
+        systemPrompt = `Create 5-8 Stable Diffusion prompts based on the keyword "${keyword}" for Illustrious XL (anime style).
 
-Keyword: ${keyword}
+IMPORTANT: Each prompt MUST include or relate to "${keyword}".
 
-Rules:
-- Illustrious XL specialized (anime/illustration style)
-- Include quality tags: masterpiece, best quality, amazing quality
-- Include count tags like 1girl, 1boy when appropriate
-- Use anime-specific expressions
-- Generate exactly 5-8 prompts maximum
-- Focus on high-quality detailed descriptions
-- Output prompts only (no explanations)
+Format: Create detailed prompts that incorporate the keyword "${keyword}" with these elements:
+- Quality tags: masterpiece, best quality, amazing quality  
+- Anime style elements
+- Character count when relevant (1girl, 1boy, etc.)
+- Detailed descriptions relating to "${keyword}"
 
-Examples:
-beautiful woman → masterpiece, best quality, 1girl, beautiful, anime style, detailed face
-smile → smile, happy, cheerful, bright expression, anime, cute`;
+Example format:
+"masterpiece, best quality, ${keyword}, anime style, detailed, [specific details about ${keyword}]"
+
+Generate exactly 5-8 prompts, each on a new line:`;
     } else {
-        systemPrompt = `Generate 5-8 high-quality Stable Diffusion prompts optimized for SD 1.5 models (realistic/anime mixed).
+        systemPrompt = `Create 5-8 Stable Diffusion prompts based on the keyword "${keyword}" for SD 1.5 (realistic/anime mixed).
 
-Keyword: ${keyword}
+IMPORTANT: Each prompt MUST include or relate to "${keyword}".
 
-Rules:
-- SD 1.5 optimization for realistic and anime styles
-- Include quality tags: photorealistic, cinematic, aesthetic
-- Consider Japanese/Asian specialization
-- Generate exactly 5-8 prompts maximum
-- Focus on high-quality detailed descriptions
-- Output prompts only (no explanations)
+Format: Create detailed prompts that incorporate the keyword "${keyword}" with these elements:
+- Quality tags: photorealistic, cinematic, aesthetic, best quality
+- Realistic or anime style elements  
+- Detailed descriptions relating to "${keyword}"
+- Natural lighting and composition
 
-Examples:
-beautiful woman → beautiful woman, photorealistic, detailed face, cinematic lighting, portrait
-smile → smile, happy expression, natural lighting, aesthetic, joyful`;
+Example format:
+"${keyword}, photorealistic, detailed, cinematic lighting, [specific details about ${keyword}]"
+
+Generate exactly 5-8 prompts, each on a new line:`;
     }
+
+    console.log('DEBUG: Generated system prompt:', systemPrompt);
 
     try {
         const response = await fetch('https://api.openai.com/v1/chat/completions', {
