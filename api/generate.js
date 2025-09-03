@@ -1,4 +1,4 @@
-// Vercel Serverless Function for OpenAI API calls
+// Vercel Serverless Function for Gemini API calls
 export default async function handler(req, res) {
     // CORS headers
     res.setHeader('Access-Control-Allow-Origin', '*');
@@ -19,16 +19,16 @@ export default async function handler(req, res) {
         return res.status(400).json({ error: 'Keyword is required' });
     }
 
-    // OpenAI API Key from environment variables (server-side)
-    const openaiApiKey = process.env.OPENAI_API_KEY;
+    // Gemini API Key from environment variables (server-side)
+    const geminiApiKey = process.env.GEMINI_API_KEY;
     
-    console.log('DEBUG: Environment OPENAI_API_KEY exists:', !!openaiApiKey);
-    console.log('DEBUG: Environment OPENAI_API_KEY length:', openaiApiKey?.length || 0);
+    console.log('DEBUG: Environment GEMINI_API_KEY exists:', !!geminiApiKey);
+    console.log('DEBUG: Environment GEMINI_API_KEY length:', geminiApiKey?.length || 0);
     console.log('DEBUG: Received keyword:', keyword);
     console.log('DEBUG: Model type:', modelType);
     
-    if (!openaiApiKey) {
-        return res.status(500).json({ error: 'OpenAI API key not configured' });
+    if (!geminiApiKey) {
+        return res.status(500).json({ error: 'Gemini API key not configured' });
     }
 
     // Build system prompt based on model type
@@ -76,42 +76,39 @@ export default async function handler(req, res) {
     console.log('DEBUG: Generated system prompt:', systemPrompt);
 
     try {
-        const response = await fetch('https://api.openai.com/v1/chat/completions', {
+        const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${geminiApiKey}`, {
             method: 'POST',
             headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${openaiApiKey}`
+                'Content-Type': 'application/json'
             },
             body: JSON.stringify({
-                model: 'gpt-4o',
-                messages: [
-                    {
-                        role: 'system',
-                        content: 'You are an expert Stable Diffusion prompt generator.'
-                    },
-                    {
-                        role: 'user',
-                        content: systemPrompt
-                    }
-                ],
-                max_tokens: 1000,
-                temperature: 0.2
+                contents: [{
+                    parts: [{
+                        text: systemPrompt
+                    }]
+                }],
+                generationConfig: {
+                    temperature: 0.2,
+                    topK: 40,
+                    topP: 0.95,
+                    maxOutputTokens: 1000
+                }
             })
         });
 
         if (!response.ok) {
             const error = await response.json();
             return res.status(response.status).json({ 
-                error: `OpenAI API error: ${response.status}`,
+                error: `Gemini API error: ${response.status}`,
                 details: error 
             });
         }
 
         const data = await response.json();
         
-        if (data.choices && data.choices[0] && data.choices[0].message) {
-            const generatedText = data.choices[0].message.content;
-            console.log('DEBUG: OpenAI生成テキスト:', generatedText);
+        if (data.candidates && data.candidates[0] && data.candidates[0].content) {
+            const generatedText = data.candidates[0].content.parts[0].text;
+            console.log('DEBUG: Gemini生成テキスト:', generatedText);
             
             const prompts = generatedText
                 .split(/\n/)
@@ -128,10 +125,10 @@ export default async function handler(req, res) {
             console.log('DEBUG: 処理後プロンプト配列:', prompts);
             return res.status(200).json({ prompts });
         } else {
-            return res.status(500).json({ error: 'OpenAI APIからの応答が不正です' });
+            return res.status(500).json({ error: 'Gemini APIからの応答が不正です' });
         }
     } catch (error) {
-        console.error('OpenAI API Error:', error);
+        console.error('Gemini API Error:', error);
         return res.status(500).json({ 
             error: 'Internal server error',
             details: error.message 
