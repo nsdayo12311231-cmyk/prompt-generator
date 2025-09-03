@@ -15,6 +15,26 @@
         </div>
         
         <div class="input-section">
+            <div class="model-selector">
+                <label class="model-label">🎨 モデルタイプを選択:</label>
+                <div class="model-options">
+                    <label class="model-option">
+                        <input type="radio" name="model-type" value="sd15" checked>
+                        <span class="model-option-text">
+                            <strong>SD 1.5</strong><br>
+                            <small>写実系・リアル系モデル</small>
+                        </span>
+                    </label>
+                    <label class="model-option">
+                        <input type="radio" name="model-type" value="illustrious">
+                        <span class="model-option-text">
+                            <strong>Illustrious XL</strong><br>
+                            <small>アニメ・イラスト系モデル</small>
+                        </span>
+                    </label>
+                </div>
+            </div>
+            
             <div class="input-group">
                 <input 
                     type="text" 
@@ -27,15 +47,6 @@
                     生成
                 </button>
             </div>
-            <div class="model-url-section">
-                <input 
-                    type="text" 
-                    class="model-url-input" 
-                    id="model-url-input" 
-                    placeholder="CivitAI URLを入力してモデル特化プロンプトを生成（オプション）"
-                >
-                <span class="model-url-hint">💫 例: https://civitai.com/models/1224788/prefect-illustrious-xl</span>
-            </div>
         </div>
         
         <div class="result-section" id="result-section">
@@ -44,8 +55,8 @@
         </div>
     </div>
     
-    <script src="config.js?v=2.6"></script>
-    <script src="api-manager.js?v=2.6"></script>
-    <script src="script.js?v=2.6"></script>
+    <script src="config.js?v=2.7"></script>
+    <script src="api-manager.js?v=2.7"></script>
+    <script src="script.js?v=2.7"></script>
 </body>
 </html>

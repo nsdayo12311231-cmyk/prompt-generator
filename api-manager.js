@@ -35,7 +35,7 @@ class APIManager {
     }
     
     // メインのプロンプト生成関数（フォールバック機能付き）
-    async generatePrompt(keyword) {
+    async generatePrompt(keyword, modelType = 'sd15') {
         let lastError = null;
         
         // 全てのAPIを順番に試行
@@ -43,7 +43,7 @@ class APIManager {
             const api = this.apis[this.currentAPIIndex];
             
             try {
-                const result = await this.callWithRetry(api, keyword);
+                const result = await this.callWithRetry(api, keyword, modelType);
                 
                 // 成功した場合
                 return result;
@@ -61,7 +61,7 @@ class APIManager {
     }
     
     // リトライ機能付きAPI呼び出し
-    async callWithRetry(api, keyword) {
+    async callWithRetry(api, keyword, modelType = 'sd15') {
         let retryCount = 0;
         const maxRetries = API_CONFIG.SYSTEM.RETRY_COUNT;
         
@@ -74,7 +74,7 @@ class APIManager {
                 
                 // API呼び出し実行
                 const result = await Promise.race([
-                    api.generatePrompt(keyword),
+                    api.generatePrompt(keyword, modelType),
                     this.timeoutPromise(API_CONFIG.SYSTEM.REQUEST_TIMEOUT)
                 ]);
                 
@@ -179,8 +179,8 @@ class GeminiAPI {
         this.config = API_CONFIG.GEMINI;
     }
     
-    async generatePrompt(keyword) {
-        const prompt = this.buildSystemPrompt(keyword);
+    async generatePrompt(keyword, modelType = 'sd15') {
+        const prompt = this.buildSystemPrompt(keyword, modelType);
         
         const requestBody = {
             contents: [{
@@ -206,23 +206,43 @@ class GeminiAPI {
         return this.parseResponse(data);
     }
     
-    buildSystemPrompt(keyword) {
-        return `あなたはStable Diffusionモデルに精通したエキスパートです。特に人気モデル（Beautiful Realistic Asians、Prefect Illustrious XL、ReV Animated等）に最適化したプロンプトを生成してください。
+    buildSystemPrompt(keyword, modelType = 'sd15') {
+        if (modelType === 'illustrious') {
+            return `あなたはIllustrious XLモデルのエキスパートです。アニメ・イラストスタイルに特化した最適プロンプトを生成してください。
 
 キーワード: ${keyword}
 
 生成ルール:
 - 3-8個の高品質プロンプトを出力
-- リアル系・アニメ系両方に対応
-- 日本人・アジア人特化も考慮
-- 写実的、アニメ的両スタイルに対応
-- 品質向上タグと組み合わせて生成
+- Illustrious XL特化（アニメ・イラストスタイル）
+- 品質タグ: masterpiece, best quality, amazing quality
+- 1girl, 1boyなどの数量タグを含める
+- アニメ特有の表現を使用
 - プロンプトのみ出力（説明無し）
 
-モデル対応例示:
-美しい女性 → masterpiece, best quality, beautiful woman, detailed face, photorealistic, cinematic
-笑顔 → smile, happy expression, natural lighting, aesthetic, portrait, detailed
+Illustrious XL例示:
+美しい女性 → masterpiece, best quality, 1girl, beautiful, anime style, detailed face
+笑顔 → smile, happy, cheerful, bright expression, anime, cute
+髪型 → beautiful hair, long hair, flowing hair, detailed hair, anime style`;
+        } else {
+            // SD 1.5用
+            return `あなたはSD 1.5モデルのエキスパートです。特に写実系モデル（Beautiful Realistic Asians、ReV Animated等）に最適化したプロンプトを生成してください。
+
+キーワード: ${keyword}
+
+生成ルール:
+- 3-8個の高品質プロンプトを出力
+- SD 1.5用リアル系・アニメ系最適化
+- photorealistic, cinematic, aestheticなどの品質タグ
+- 日本人・アジア人特化も考慮
+- プロンプトのみ出力（説明無し）
+
+SD 1.5例示:
+美しい女性 → beautiful woman, photorealistic, detailed face, cinematic lighting, portrait
+笑顔 → smile, happy expression, natural lighting, aesthetic, joyful
 日本人女性 → japanese woman, asian beauty, realistic, detailed face, natural makeup`;
+        }
+    }
     }
     
     parseResponse(data) {

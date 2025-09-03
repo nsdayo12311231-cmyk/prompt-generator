@@ -11,6 +11,9 @@ async function generatePrompts() {
         return;
     }
     
+    // 選択されたモデルタイプを取得
+    const selectedModelType = document.querySelector('input[name="model-type"]:checked').value;
+    
     // API Managerの初期化確認
     if (!apiManager) {
         try {
@@ -32,7 +35,7 @@ async function generatePrompts() {
     promptsContainer.innerHTML = '<div class="loading">プロンプトを生成中...</div>';
     
     try {
-        const prompts = await apiManager.generatePrompt(keyword);
+        const prompts = await apiManager.generatePrompt(keyword, selectedModelType);
         await displayPrompts(prompts);
     } catch (error) {
         showError(getErrorMessage(error));

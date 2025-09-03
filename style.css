@@ -83,6 +83,77 @@ body {
     font-style: italic;
 }
 
+/* モデル選択機能 */
+.model-selector {
+    margin-bottom: 20px;
+    padding: 15px;
+    background: #f8f9fa;
+    border-radius: 10px;
+    border: 2px solid #e9ecef;
+}
+
+.model-label {
+    display: block;
+    font-weight: 600;
+    margin-bottom: 10px;
+    color: #333;
+    font-size: 0.95rem;
+}
+
+.model-options {
+    display: flex;
+    gap: 15px;
+    flex-wrap: wrap;
+}
+
+.model-option {
+    flex: 1;
+    min-width: 160px;
+    cursor: pointer;
+    position: relative;
+    display: flex;
+    align-items: center;
+    padding: 12px 15px;
+    background: white;
+    border: 2px solid #dee2e6;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+}
+
+.model-option:hover {
+    border-color: #667eea;
+    box-shadow: 0 2px 8px rgba(102, 126, 234, 0.1);
+}
+
+.model-option input[type="radio"] {
+    margin-right: 10px;
+    width: 18px;
+    height: 18px;
+    accent-color: #667eea;
+}
+
+.model-option input[type="radio"]:checked + .model-option-text {
+    color: #667eea;
+}
+
+.model-option:has(input:checked) {
+    border-color: #667eea;
+    background: #f0f2ff;
+    box-shadow: 0 2px 8px rgba(102, 126, 234, 0.15);
+}
+
+.model-option-text strong {
+    font-size: 0.95rem;
+    display: block;
+    margin-bottom: 2px;
+}
+
+.model-option-text small {
+    font-size: 0.8rem;
+    color: #666;
+    opacity: 0.8;
+}
+
 .input-group {
     display: flex;
     gap: 15px;
