@@ -1,6 +1,3 @@
-// API Manager初期化
-let apiManager = null;
-
 // プロンプト生成関数
 async function generatePrompts() {
     const keywordInput = document.getElementById('keyword-input');
@@ -13,16 +10,6 @@ async function generatePrompts() {
     
     // 選択されたモデルタイプを取得
     const selectedModelType = document.querySelector('input[name="model-type"]:checked').value;
-    
-    // API Managerの初期化確認
-    if (!apiManager) {
-        try {
-            apiManager = new APIManager();
-        } catch (error) {
-            showError('APIシステムの初期化に失敗しました。設定を確認してください。');
-            return;
-        }
-    }
     
     const generateBtn = document.querySelector('.generate-btn');
     const resultSection = document.getElementById('result-section');
@@ -200,7 +187,7 @@ async function translateToJapanese(englishPrompt) {
                                translatedWords.some(word => /^[a-z]+$/i.test(word) && word.length > 2) ||
                                dictionaryResult.includes('の') && !result.includes('face');
     
-    if (needsAPITranslation && apiManager) {
+    if (needsAPITranslation) {
         try {
             const apiTranslation = await translateWithAPI(englishPrompt);
             if (apiTranslation && apiTranslation.trim() !== englishPrompt && apiTranslation.trim().length > 0) {
@@ -215,25 +202,27 @@ async function translateToJapanese(englishPrompt) {
     return dictionaryResult !== result ? dictionaryResult : `(${englishPrompt})`;
 }
 
-// API翻訳機能（コスト最適化版）
+// API翻訳機能（Serverless Function版）
 async function translateWithAPI(englishPrompt) {
-    if (!apiManager) {
-        return null;
-    }
-    
-    // Gemini 1.5 Flash用高精度プロンプト
-    const translationPrompt = `あなたはStable Diffusion画像生成に特化したAI翻訳アシスタントです。Gemini 1.5 Flashの高性能を活かし、以下の英語プロンプトを初心者にも理解しやすい自然な日本語に翻訳してください。
-
-翻訳ルール:
-- SD画像生成の文脈で最適化
-- 「〜な人」「〜している人」など自然な表現
-- 翻訳結果のみ出力
-
-英語: "${englishPrompt}"
-日本語:`;
     
     try {
-        const result = await apiManager.callTranslationAPI(translationPrompt);
+        const response = await fetch('/api/translate', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                text: englishPrompt
+            })
+        });
+        
+        if (!response.ok) {
+            const error = await response.json();
+            throw new Error(error.error || `API Error: ${response.status}`);
+        }
+        
+        const data = await response.json();
+        const result = data.translation;
         if (!result) return null;
         
         // 不要なプレフィクスを除去
