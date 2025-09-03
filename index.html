@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>プロンプト出力くん - SD画像生成プロンプトジェネレーター</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+        
+        .title {
+            font-size: 2.5rem;
+            color: #333;
+            margin-bottom: 10px;
+        }
+        
+        .subtitle {
+            color: #666;
+            font-size: 1.1rem;
+        }
+        
+        .input-section {
+            margin-bottom: 30px;
+        }
+        
+        .input-group {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .input-field {
+            flex: 1;
+            padding: 15px;
+            border: 2px solid #e1e5e9;
+            border-radius: 10px;
+            font-size: 1.1rem;
+            transition: border-color 0.3s;
+        }
+        
+        .input-field:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        .generate-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 10px;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: transform 0.2s;
+            min-width: 120px;
+        }
+        
+        .generate-btn:hover {
+            transform: translateY(-2px);
+        }
+        
+        .generate-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .result-section {
+            display: none;
+            margin-top: 30px;
+        }
+        
+        .result-title {
+            font-size: 1.3rem;
+            color: #333;
+            margin-bottom: 15px;
+        }
+        
+        .prompt-card {
+            background: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 15px;
+            position: relative;
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+        }
+        
+        .prompt-content {
+            flex: 1;
+            margin-right: 15px;
+        }
+        
+        .prompt-text {
+            font-family: 'Monaco', 'Menlo', monospace;
+            font-size: 1rem;
+            line-height: 1.4;
+            color: #333;
+            margin-bottom: 5px;
+            font-weight: 600;
+        }
+        
+        .prompt-translation {
+            font-size: 0.85rem;
+            color: #666;
+            line-height: 1.3;
+            font-style: italic;
+        }
+        
+        .copy-btn {
+            background: #28a745;
+            color: white;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            transition: background-color 0.3s;
+            flex-shrink: 0;
+            height: fit-content;
+        }
+        
+        .copy-btn:hover {
+            background: #218838;
+        }
+        
+        .copy-btn.copied {
+            background: #17a2b8;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+        }
+        
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 20px;
+        }
+        
+        @media (max-width: 768px) {
+            body {
+                padding: 10px;
+            }
+            
+            .container {
+                padding: 20px;
+                margin: 0;
+                border-radius: 15px;
+            }
+            
+            .title {
+                font-size: 1.8rem;
+                margin-bottom: 5px;
+            }
+            
+            .subtitle {
+                font-size: 1rem;
+                margin-bottom: 20px;
+            }
+            
+            .input-group {
+                flex-direction: column;
+                gap: 10px;
+            }
+            
+            .input-field {
+                font-size: 16px; /* iOS zoom 回避 */
+                padding: 12px;
+            }
+            
+            .generate-btn {
+                width: 100%;
+                padding: 12px;
+                font-size: 1rem;
+            }
+            
+            .prompt-card {
+                padding: 15px;
+                margin-bottom: 10px;
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .prompt-content {
+                margin-right: 0;
+                margin-bottom: 10px;
+            }
+            
+            .copy-btn {
+                width: 100%;
+                padding: 10px;
+                flex-shrink: 0;
+            }
+            
+            .prompt-text {
+                font-size: 0.9rem;
+                line-height: 1.5;
+                word-break: break-word;
+            }
+            
+            .prompt-translation {
+                font-size: 0.8rem;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .container {
+                padding: 15px;
+            }
+            
+            .title {
+                font-size: 1.5rem;
+            }
+            
+            .subtitle {
+                font-size: 0.9rem;
+            }
+            
+            .input-field {
+                padding: 10px;
+                font-size: 16px;
+            }
+            
+            .generate-btn {
+                padding: 10px;
+                font-size: 0.9rem;
+            }
+            
+            .prompt-text {
+                font-size: 0.85rem;
+            }
+        }
+        
+        /* タッチデバイス対応 */
+        @media (pointer: coarse) {
+            .copy-btn {
+                min-height: 44px;
+                touch-action: manipulation;
+            }
+            
+            .generate-btn {
+                min-height: 44px;
+                touch-action: manipulation;
+            }
+            
+            .input-field {
+                min-height: 44px;
+            }
+        }
+        
+        /* ダークモード対応 */
+        @media (prefers-color-scheme: dark) {
+            body {
+                background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            }
+            
+            .container {
+                background: #2d2d2d;
+                color: #e0e0e0;
+            }
+            
+            .input-field {
+                background: #3d3d3d;
+                border-color: #555;
+                color: #e0e0e0;
+            }
+            
+            .input-field:focus {
+                border-color: #667eea;
+            }
+            
+            .prompt-card {
+                background: #3d3d3d;
+                border-color: #555;
+            }
+            
+            .prompt-text {
+                color: #e0e0e0;
+            }
+            
+            .prompt-translation {
+                color: #aaa;
+            }
+            
+            .error {
+                background: #4d2d2d;
+                color: #ffaaaa;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1 class="title">🎨 プロンプト出力くん</h1>
+            <p class="subtitle">Stable Diffusion用プロンプトを簡単生成</p>
+        </div>
+        
+        <div class="input-section">
+            <div class="input-group">
+                <input 
+                    type="text" 
+                    class="input-field" 
+                    id="keyword-input" 
+                    placeholder="キーワードを入力（例：頭、風景、アニメ）"
+                    onkeypress="handleKeyPress(event)"
+                >
+                <button class="generate-btn" onclick="generatePrompts()">
+                    生成
+                </button>
+            </div>
+        </div>
+        
+        <div class="result-section" id="result-section">
+            <h3 class="result-title">生成されたプロンプト</h3>
+            <div id="prompts-container"></div>
+        </div>
+    </div>
+    
+    <script src="config.js"></script>
+    <script src="api-manager.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
