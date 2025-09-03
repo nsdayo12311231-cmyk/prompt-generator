@@ -11,25 +11,25 @@
         <div class="header">
             <h1 class="title">🎨 プロンプト出力くん</h1>
             <p class="subtitle">Stable Diffusion用プロンプトを簡単生成</p>
-            <p class="model-info">Powered by <strong>Gemini 1.5 Flash</strong> ・ リアル系・アニメ系モデル対応 ・ 辞書+AIハイブリッド翻訳</p>
+            <p class="model-info">Powered by <strong>Gemini 1.5 Flash</strong> ・ <span id="current-model-type">SD 1.5 対応</span> ・ 辞書+AIハイブリッド翻訳</p>
         </div>
         
         <div class="input-section">
             <div class="model-selector">
                 <label class="model-label">🎨 モデルタイプを選択:</label>
                 <div class="model-options">
-                    <label class="model-option">
-                        <input type="radio" name="model-type" value="sd15" checked>
+                    <label class="model-option" data-model="sd15">
+                        <input type="radio" name="model-type" value="sd15" checked onchange="updateModelDisplay()">
                         <span class="model-option-text">
-                            <strong>SD 1.5</strong><br>
-                            <small>写実系・リアル系モデル</small>
+                            <strong>SD 1.5</strong>
+                            <small>写実系・リアル系モデル<br>フォトリアリスティックな画像生成</small>
                         </span>
                     </label>
-                    <label class="model-option">
-                        <input type="radio" name="model-type" value="illustrious">
+                    <label class="model-option" data-model="illustrious">
+                        <input type="radio" name="model-type" value="illustrious" onchange="updateModelDisplay()">
                         <span class="model-option-text">
-                            <strong>Illustrious XL</strong><br>
-                            <small>アニメ・イラスト系モデル</small>
+                            <strong>Illustrious XL</strong>
+                            <small>アニメ・イラスト系モデル<br>高品質アニメスタイル画像</small>
                         </span>
                     </label>
                 </div>
@@ -55,8 +55,8 @@
         </div>
     </div>
     
-    <script src="config.js?v=2.7"></script>
-    <script src="api-manager.js?v=2.7"></script>
-    <script src="script.js?v=2.7"></script>
+    <script src="config.js?v=2.8"></script>
+    <script src="api-manager.js?v=2.8"></script>
+    <script src="script.js?v=2.8"></script>
 </body>
 </html>

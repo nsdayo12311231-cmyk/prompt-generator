@@ -268,6 +268,20 @@ function handleKeyPress(event) {
     }
 }
 
+// モデル表示更新関数
+function updateModelDisplay() {
+    const selectedModel = document.querySelector('input[name="model-type"]:checked').value;
+    const modelDisplayElement = document.getElementById('current-model-type');
+    
+    if (selectedModel === 'illustrious') {
+        modelDisplayElement.textContent = 'Illustrious XL 対応';
+        modelDisplayElement.style.color = '#e83e8c';
+    } else {
+        modelDisplayElement.textContent = 'SD 1.5 対応';
+        modelDisplayElement.style.color = '#28a745';
+    }
+}
+
 
 // 初期化
 document.addEventListener('DOMContentLoaded', function() {
