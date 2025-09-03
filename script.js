@@ -35,13 +35,31 @@ async function generatePrompts() {
     promptsContainer.innerHTML = '<div class="loading">プロンプトを生成中...</div>';
     
     try {
-        console.log('DEBUG: API呼び出し前, apiManager:', apiManager);
-        console.log('DEBUG: apiManager.apis:', apiManager?.apis);
-        const prompts = await apiManager.generatePrompt(keyword, selectedModelType);
-        console.log('DEBUG: API呼び出し後, prompts:', prompts);
-        await displayPrompts(prompts);
+        console.log('DEBUG: Serverless API呼び出し開始');
+        
+        // Vercel Serverless Function を使用
+        const response = await fetch('/api/generate', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                keyword: keyword,
+                modelType: selectedModelType
+            })
+        });
+        
+        if (!response.ok) {
+            const error = await response.json();
+            throw new Error(error.error || `API Error: ${response.status}`);
+        }
+        
+        const data = await response.json();
+        console.log('DEBUG: Serverless API成功:', data);
+        
+        await displayPrompts(data.prompts);
     } catch (error) {
-        console.error('DEBUG: エラー発生:', error);
+        console.error('DEBUG: Serverless APIエラー:', error);
         showError(getErrorMessage(error));
     } finally {
         generateBtn.disabled = false;
