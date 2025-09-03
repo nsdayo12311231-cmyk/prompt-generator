@@ -117,17 +117,31 @@ async function displayPrompts(prompts) {
 
 // 英語プロンプトを日本語に翻訳（辞書+API）
 async function translateToJapanese(englishPrompt) {
+    // 高品質翻訳辞書（自然な表現重視）
     const translations = {
-        'happy': '幸せな', 'sad': '悲しい', 'angry': '怒った', 'scared': '怖がった',
-        'surprised': '驚いた', 'thinking': '考えている', 'face': '顔', 'eyes': '目',
-        'head': '頭', 'hair': '髪', 'beautiful': '美しい', 'cute': 'かわいい',
-        'young': '若い', 'calm': '穏やかな', 'smile': '笑顔', 'crying': '泣いている',
-        'blushing': '頬を赤らめた', 'bashful': '内気な', 'shy': '恥ずかしがりの',
-        'portrait': 'ポートレート', 'closeup': 'クローズアップ', 'expression': '表情',
-        'peeping tom': 'のぞき見トム', 'person peeking': '人がのぞいている',
-        'looking through': '覗いている', 'someone spying': '誰かがスパイしている',
-        'watching secretly': '秘密に見ている', 'observing covertly': '隠れて観察している',
-        'hidden observer': '隠れた観察者', 'voyeur': '覗き見する人'
+        // 基本情感
+        'happy': '幸せそうな人', 'sad': '悲しんでいる人', 'angry': '怒っている人', 
+        'scared': '怖がっている人', 'surprised': '驚いている人', 'thinking': '考えている人',
+        'calm': '穏やかな人', 'tired': '疲れた人', 'confused': '困っている人',
+        
+        // 身体部位・姿勢
+        'face': '顔', 'head': '頭部', 'hair': '髪型', 'eyes': '目元',
+        'portrait': '人物画', 'closeup': 'クローズアップ', 'profile': '横顔',
+        
+        // 美しさ・魅力
+        'beautiful': '美しい人', 'cute': '可愛い人', 'pretty': 'きれいな人',
+        'young': '若い人', 'attractive': '魅力的な人',
+        
+        // 表情・感情
+        'smile': '笑顔', 'smiling': '笑っている人', 'crying': '泣いている人',
+        'blushing': '頬を赤らめている人', 'shy': '恥ずかしがっている人',
+        'embarrassed': '恥ずかしい思いをしている人',
+        
+        // 特定の状況・行動  
+        'troubled man': '悩んでいる男性', 'distressed man': '苦悩している男性',
+        'worried man': '心配している男性', 'anxious man': '不安に思っている男性',
+        'upset man': '落ち込んでいる男性', 'despondent man': '絶望している男性',
+        'man in despair': '絶望の中にいる男性', 'man in trouble': '困っている男性'
     };
     
     const result = englishPrompt.toLowerCase().trim();
@@ -146,10 +160,10 @@ async function translateToJapanese(englishPrompt) {
     
     const dictionaryResult = translatedWords.join(' ');
     
-    // 辞書に未翻訳単語が残っている場合、APIで翻訳
+    // API翻訳が必要か判定（英単語が残っているまたは不自然な翻訳）
     const hasUntranslated = translatedWords.some(word => 
         /^[a-z]+$/i.test(word) && word.length > 2
-    );
+    ) || dictionaryResult.includes('の') && !result.includes('face') && !result.includes('eyes');
     
     if (hasUntranslated && apiManager) {
         try {
@@ -165,17 +179,30 @@ async function translateToJapanese(englishPrompt) {
     return dictionaryResult || `(${englishPrompt})`;
 }
 
-// API翻訳機能
+// API翻訳機能（GPT級の高品質翻訳）
 async function translateWithAPI(englishPrompt) {
     if (!apiManager) {
         return null;
     }
     
-    const translationPrompt = `以下の英語を自然な日本語に翻訳してください（翻訳結果のみ出力、説明不要）:
-${englishPrompt}`;
+    const translationPrompt = `あなたはStable Diffusion画像生成に精通した翻訳の専門家です。
+以下の英語プロンプトを、SD初心者にもわかりやすい自然な日本語に翻訳してください。
+
+翻訳ルール:
+- 画像生成の文脈を考慮して翻訳
+- 初心者向けに分かりやすい表現を使用
+- 不自然な「の」の連続は避ける
+- 感情や状態は「〜な人」「〜している人」など自然な表現にする
+- 翻訳結果のみを出力（説明は不要）
+
+英語プロンプト: ${englishPrompt}
+
+日本語翻訳:`;
     
     try {
-        return await apiManager.callTranslationAPI(translationPrompt);
+        const result = await apiManager.callTranslationAPI(translationPrompt);
+        // 「日本語翻訳:」がある場合は除去
+        return result.replace(/^.*日本語翻訳:\s*/i, '').trim();
     } catch (error) {
         throw error;
     }
