@@ -23,6 +23,8 @@ async function generatePrompts() {
     
     try {
         console.log('DEBUG: Serverless API呼び出し開始');
+        console.log('DEBUG: 送信キーワード:', keyword);
+        console.log('DEBUG: 選択モデル:', selectedModelType);
         
         // Vercel Serverless Function を使用
         const response = await fetch('/api/generate', {
@@ -43,6 +45,7 @@ async function generatePrompts() {
         
         const data = await response.json();
         console.log('DEBUG: Serverless API成功:', data);
+        console.log('DEBUG: 受信したプロンプト一覧:', data.prompts);
         
         await displayPrompts(data.prompts);
     } catch (error) {

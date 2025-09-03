@@ -103,6 +103,8 @@ Generate exactly 5-8 prompts, each on a new line:`;
         
         if (data.choices && data.choices[0] && data.choices[0].message) {
             const generatedText = data.choices[0].message.content;
+            console.log('DEBUG: OpenAI生成テキスト:', generatedText);
+            
             const prompts = generatedText
                 .split(/[\n,]+/)
                 .map(prompt => prompt.trim())
@@ -113,6 +115,7 @@ Generate exactly 5-8 prompts, each on a new line:`;
                 return res.status(500).json({ error: '有効なプロンプトが生成されませんでした' });
             }
             
+            console.log('DEBUG: 処理後プロンプト配列:', prompts);
             return res.status(200).json({ prompts });
         } else {
             return res.status(500).json({ error: 'OpenAI APIからの応答が不正です' });
