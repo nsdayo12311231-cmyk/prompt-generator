@@ -34,45 +34,45 @@ export default async function handler(req, res) {
     // Build system prompt based on model type
     let systemPrompt;
     if (modelType === 'illustrious') {
-        systemPrompt = `Create 5-8 Stable Diffusion prompts for Illustrious XL based on the Japanese keyword "${keyword}".
+        systemPrompt = `日本語キーワード「${keyword}」に基づいて、Illustrious XL用のStable Diffusionプロンプトを5-8個作成してください。
 
-IMPORTANT: 
-1. Translate "${keyword}" to appropriate English SD terms
-2. Create realistic, usable prompts focused on the concept
-3. Use proper SD syntax and proven effective tags
+重要な指示:
+1. 「${keyword}」を適切な英語のSD用語に翻訳する
+2. コンセプトに焦点を当てた現実的で使用可能なプロンプトを作成する
+3. 適切なSD構文と実証済みの効果的なタグを使用する
 
-Rules:
-- Translate Japanese keyword to 1-2 core English words
-- Build simple, effective prompts around those core terms
-- Include basic SD elements: character count, style, key visual features
-- Quality tags: masterpiece, best quality (sparingly)
-- Keep prompts concise and focused
+ルール:
+- 日本語キーワードを1-2個の核となる英単語に翻訳
+- その核となる用語を中心にシンプルで効果的なプロンプトを構築
+- 基本的なSD要素を含める: キャラクター数、スタイル、主要な視覚的特徴
+- 品質タグ: masterpiece, best quality (控えめに使用)
+- プロンプトを簡潔で焦点を絞ったものにする
 
-Example transformation:
-可愛い子 → core word "cute" → "1girl, cute, anime style, soft features"
-笑顔 → core word "smile" → "1girl, smile, happy expression, anime"
+変換例:
+可愛い子 → 核となる単語 "cute" → "1girl, cute, anime style, soft features"
+笑顔 → 核となる単語 "smile" → "1girl, smile, happy expression, anime"
 
-Generate 5-8 practical SD prompts:`;
+実用的なSDプロンプトを5-8個生成してください:`;
     } else {
-        systemPrompt = `Create 5-8 Stable Diffusion prompts for SD 1.5 based on the Japanese keyword "${keyword}".
+        systemPrompt = `日本語キーワード「${keyword}」に基づいて、SD 1.5用のStable Diffusionプロンプトを5-8個作成してください。
 
-IMPORTANT: 
-1. Translate "${keyword}" to appropriate English SD terms
-2. Create realistic, usable prompts focused on the concept
-3. Use proper SD 1.5 syntax and proven effective tags
+重要な指示:
+1. 「${keyword}」を適切な英語のSD用語に翻訳する
+2. コンセプトに焦点を当てた現実的で使用可能なプロンプトを作成する
+3. 適切なSD 1.5構文と実証済みの効果的なタグを使用する
 
-Rules:
-- Translate Japanese keyword to 1-2 core English words
-- Build simple, effective prompts around those core terms
-- Include basic SD elements: style, composition, lighting
-- Quality tags: photorealistic, detailed (sparingly)
-- Keep prompts concise and focused
+ルール:
+- 日本語キーワードを1-2個の核となる英単語に翻訳
+- その核となる用語を中心にシンプルで効果的なプロンプトを構築
+- 基本的なSD要素を含める: スタイル、構図、照明
+- 品質タグ: photorealistic, detailed (控えめに使用)
+- プロンプトを簡潔で焦点を絞ったものにする
 
-Example transformation:
-可愛い子 → core word "cute" → "cute girl, soft lighting, portrait"
-風景 → core word "landscape" → "landscape, natural scenery, outdoor"
+変換例:
+可愛い子 → 核となる単語 "cute" → "cute girl, soft lighting, portrait"
+風景 → 核となる単語 "landscape" → "landscape, natural scenery, outdoor"
 
-Generate 5-8 practical SD prompts:`;
+実用的なSDプロンプトを5-8個生成してください:`;
     }
 
     console.log('DEBUG: Generated system prompt:', systemPrompt);
