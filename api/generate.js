@@ -106,9 +106,11 @@ Generate exactly 5-8 prompts, each on a new line:`;
             console.log('DEBUG: OpenAI生成テキスト:', generatedText);
             
             const prompts = generatedText
-                .split(/[\n,]+/)
+                .split(/\n/)
                 .map(prompt => prompt.trim())
                 .filter(prompt => prompt.length > 0 && !prompt.includes('Keyword') && !prompt.includes('Example'))
+                .map(prompt => prompt.replace(/^\d+\.\s*[""]?/, '').replace(/[""]?$/, ''))
+                .filter(prompt => prompt.length > 10)
                 .slice(0, 10);
             
             if (prompts.length === 0) {
