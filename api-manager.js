@@ -16,6 +16,10 @@ class APIManager {
             this.apis.push(new GeminiAPI());
         }
         
+        // OpenAI API
+        if (API_CONFIG.OPENAI.ENABLED) {
+            this.apis.push(new OpenAIAPI());
+        }
     }
     
     // 翻訳専用API呼び出し
@@ -148,7 +152,6 @@ class APIManager {
         switch (apiName.toLowerCase()) {
             case 'gemini': return API_CONFIG.GEMINI;
             case 'openai': return API_CONFIG.OPENAI;
-            case 'claude': return API_CONFIG.CLAUDE;
             default: return null;
         }
     }
@@ -305,12 +308,147 @@ SD 1.5例示:
     
 }
 
+// OpenAI API実装
+class OpenAIAPI {
+    constructor() {
+        this.name = 'OpenAI';
+        this.config = API_CONFIG.OPENAI;
+    }
+    
+    async generatePrompt(keyword, modelType = 'sd15') {
+        const prompt = this.buildSystemPrompt(keyword, modelType);
+        
+        const requestBody = {
+            model: this.config.MODEL,
+            messages: [
+                {
+                    role: "system",
+                    content: "You are an expert Stable Diffusion prompt generator."
+                },
+                {
+                    role: "user", 
+                    content: prompt
+                }
+            ],
+            max_tokens: 1000,
+            temperature: 0.7
+        };
+        
+        const response = await fetch(this.config.ENDPOINT, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${this.config.API_KEY}`
+            },
+            body: JSON.stringify(requestBody)
+        });
+        
+        if (!response.ok) {
+            throw new Error(`OpenAI API エラー: ${response.status} ${response.statusText}`);
+        }
+        
+        const data = await response.json();
+        return this.parseResponse(data);
+    }
+    
+    buildSystemPrompt(keyword, modelType = 'sd15') {
+        if (modelType === 'illustrious') {
+            return `Generate 3-8 high-quality Stable Diffusion prompts optimized for Illustrious XL model (anime/illustration style).
 
+Keyword: ${keyword}
+
+Rules:
+- Illustrious XL specialized (anime/illustration style)
+- Include quality tags: masterpiece, best quality, amazing quality
+- Include count tags like 1girl, 1boy when appropriate
+- Use anime-specific expressions
+- Output prompts only (no explanations)
+
+Examples:
+beautiful woman → masterpiece, best quality, 1girl, beautiful, anime style, detailed face
+smile → smile, happy, cheerful, bright expression, anime, cute`;
+        } else {
+            return `Generate 3-8 high-quality Stable Diffusion prompts optimized for SD 1.5 models (realistic/anime mixed).
+
+Keyword: ${keyword}
+
+Rules:
+- SD 1.5 optimization for realistic and anime styles
+- Include quality tags: photorealistic, cinematic, aesthetic
+- Consider Japanese/Asian specialization
+- Output prompts only (no explanations)
+
+Examples:
+beautiful woman → beautiful woman, photorealistic, detailed face, cinematic lighting, portrait
+smile → smile, happy expression, natural lighting, aesthetic, joyful`;
+        }
+    }
+    
+    parseResponse(data) {
+        if (data.choices && data.choices[0] && data.choices[0].message) {
+            const generatedText = data.choices[0].message.content;
+            const prompts = generatedText
+                .split(/[\n,]+/)
+                .map(prompt => prompt.trim())
+                .filter(prompt => prompt.length > 0 && !prompt.includes('Keyword') && !prompt.includes('Example'));
+            
+            if (prompts.length === 0) {
+                throw new Error('有効なプロンプトが生成されませんでした');
+            }
+            
+            return prompts;
+        } else {
+            throw new Error('OpenAI APIからの応答が不正です');
+        }
+    }
+    
+    // 翻訳専用メソッド
+    async translateText(translationPrompt) {
+        const requestBody = {
+            model: this.config.MODEL,
+            messages: [
+                {
+                    role: "system",
+                    content: "You are a professional translator specializing in Stable Diffusion prompts. Translate English prompts to natural Japanese."
+                },
+                {
+                    role: "user",
+                    content: translationPrompt
+                }
+            ],
+            max_tokens: 500,
+            temperature: 0.3
+        };
+        
+        const response = await fetch(this.config.ENDPOINT, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${this.config.API_KEY}`
+            },
+            body: JSON.stringify(requestBody)
+        });
+        
+        if (!response.ok) {
+            throw new Error(`OpenAI翻訳APIエラー: ${response.status} ${response.statusText}`);
+        }
+        
+        const data = await response.json();
+        
+        if (data.choices && data.choices[0] && data.choices[0].message) {
+            const translatedText = data.choices[0].message.content.trim();
+            return translatedText;
+        } else {
+            throw new Error('OpenAI翻訳APIからの応答が不正です');
+        }
+    }
+}
 
 // エクスポート
 if (typeof module !== 'undefined' && module.exports) {
-    module.exports = { APIManager, GeminiAPI };
+    module.exports = { APIManager, GeminiAPI, OpenAIAPI };
 } else {
     window.APIManager = APIManager;
     window.GeminiAPI = GeminiAPI;
+    window.OpenAIAPI = OpenAIAPI;
 }

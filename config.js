@@ -10,6 +10,14 @@ const API_CONFIG = {
         ENABLED: true
     },
     
+    // フォールバック: OpenAI GPT
+    OPENAI: {
+        API_KEY: 'YOUR_OPENAI_API_KEY_HERE',
+        ENDPOINT: 'https://api.openai.com/v1/chat/completions',
+        MODEL: 'gpt-4o-mini',
+        MAX_REQUESTS_PER_MINUTE: 100,
+        ENABLED: false // Vercel環境変数設定後にtrueに変更
+    },
     
     // システム設定
     SYSTEM: {
@@ -47,6 +55,12 @@ function validateAPIKeys() {
 function loadFromEnvironment() {
     if (typeof process !== 'undefined' && process.env) {
         API_CONFIG.GEMINI.API_KEY = process.env.GEMINI_API_KEY || API_CONFIG.GEMINI.API_KEY;
+        
+        // OpenAI API設定
+        if (process.env.OPENAI_API_KEY) {
+            API_CONFIG.OPENAI.API_KEY = process.env.OPENAI_API_KEY;
+            API_CONFIG.OPENAI.ENABLED = true;
+        }
     }
 }
 
