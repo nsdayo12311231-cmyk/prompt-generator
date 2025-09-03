@@ -6,7 +6,7 @@ const API_CONFIG = {
     GEMINI: {
         API_KEY: 'AIzaSyDCQ8Zik-G0IG_e_B8EItEAtN8VhynPLhQ',
         ENDPOINT: 'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent',
-        MAX_REQUESTS_PER_MINUTE: 60,
+        MAX_REQUESTS_PER_MINUTE: 15,
         ENABLED: true
     },
     

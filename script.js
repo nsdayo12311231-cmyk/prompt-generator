@@ -77,8 +77,9 @@ async function displayPrompts(prompts) {
     const promptsContainer = document.getElementById('prompts-container');
     promptsContainer.innerHTML = '';
     
-    // 各プロンプトを順次処理（並列処理でAPI負荷軽減）
-    const translationPromises = prompts.map(async (prompt, index) => {
+    // 各プロンプトを順次処理（API負荷軽減のため並列→順次に変更）
+    for (let i = 0; i < prompts.length; i++) {
+        const prompt = prompts[i];
         const promptCard = document.createElement('div');
         promptCard.className = 'prompt-card';
         
@@ -95,7 +96,7 @@ async function displayPrompts(prompts) {
         promptsContainer.appendChild(promptCard);
         
         try {
-            // 日本語訳を生成（非同期）
+            // 日本語訳を生成（順次実行）
             const japaneseTranslation = await translateToJapanese(prompt.trim());
             
             // 翻訳完了後に更新
@@ -112,10 +113,12 @@ async function displayPrompts(prompts) {
             // 翻訳エラー時は元の単語を表示
             promptCard.querySelector('.prompt-translation').textContent = `(${prompt.trim()})`;
         }
-    });
-    
-    // すべての翻訳完了を待機
-    await Promise.all(translationPromises);
+        
+        // API制限対策：翻訳リクエスト間に500ms待機
+        if (i < prompts.length - 1) {
+            await new Promise(resolve => setTimeout(resolve, 500));
+        }
+    }
 }
 
 // 英語プロンプトを日本語に翻訳（辞書+API）
@@ -221,6 +224,10 @@ async function translateWithAPI(englishPrompt) {
         return cleaned.length > 0 ? cleaned : null;
     } catch (error) {
         console.warn('API翻訳エラー:', error);
+        if (error.message.includes('Rate limit') || error.message.includes('429')) {
+            // レート制限エラーの場合は辞書翻訳にフォールバック
+            return null;
+        }
         throw error;
     }
 }
