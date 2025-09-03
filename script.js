@@ -35,9 +35,13 @@ async function generatePrompts() {
     promptsContainer.innerHTML = '<div class="loading">プロンプトを生成中...</div>';
     
     try {
+        console.log('DEBUG: API呼び出し前, apiManager:', apiManager);
+        console.log('DEBUG: apiManager.apis:', apiManager?.apis);
         const prompts = await apiManager.generatePrompt(keyword, selectedModelType);
+        console.log('DEBUG: API呼び出し後, prompts:', prompts);
         await displayPrompts(prompts);
     } catch (error) {
+        console.error('DEBUG: エラー発生:', error);
         showError(getErrorMessage(error));
     } finally {
         generateBtn.disabled = false;
