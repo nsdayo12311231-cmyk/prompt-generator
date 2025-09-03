@@ -85,7 +85,7 @@ body {
 .toggle-option {
     flex: 1;
     cursor: pointer;
-    padding: 20px;
+    padding: 25px 20px;
     border: 3px solid #dee2e6;
     border-radius: 12px;
     transition: all 0.3s ease;
@@ -117,16 +117,6 @@ body {
     display: block;
 }
 
-.option-description {
-    font-size: 0.9rem;
-    color: #6c757d;
-    line-height: 1.4;
-}
-
-.option-description strong {
-    color: #495057;
-    font-weight: 600;
-}
 
 /* SD1.5 スタイル */
 .sd15-option {
@@ -170,24 +160,6 @@ body {
     color: #721c24;
 }
 
-/* 例示表示 */
-.model-examples {
-    background: #f8f9fa;
-    padding: 15px;
-    border-radius: 8px;
-    border-left: 4px solid #007bff;
-}
-
-.example-text {
-    font-size: 0.9rem;
-    color: #495057;
-    line-height: 1.5;
-}
-
-.example-text strong {
-    color: #007bff;
-    font-weight: 600;
-}
 
 .input-group {
     display: flex;

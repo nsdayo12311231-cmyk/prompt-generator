@@ -272,26 +272,13 @@ function handleKeyPress(event) {
 function updateModelDisplay() {
     const selectedModel = document.querySelector('input[name="model-type"]:checked').value;
     const modelDisplayElement = document.getElementById('current-model-type');
-    const examplesElement = document.getElementById('model-examples');
     
     if (selectedModel === 'illustrious') {
         modelDisplayElement.textContent = 'Illustrious XL 対応';
         modelDisplayElement.style.color = '#e83e8c';
-        examplesElement.innerHTML = `
-            <div class="example-text">
-                <strong>例:</strong> 「美しい女性」→ masterpiece, best quality, 1girl, beautiful, anime style, detailed face
-            </div>
-        `;
-        examplesElement.style.borderLeftColor = '#e83e8c';
     } else {
         modelDisplayElement.textContent = 'SD 1.5 対応';
         modelDisplayElement.style.color = '#28a745';
-        examplesElement.innerHTML = `
-            <div class="example-text">
-                <strong>例:</strong> 「美しい女性」→ beautiful woman, photorealistic, detailed face, cinematic lighting
-            </div>
-        `;
-        examplesElement.style.borderLeftColor = '#28a745';
     }
 }
 

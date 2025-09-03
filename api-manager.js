@@ -243,7 +243,6 @@ SD 1.5例示:
 日本人女性 → japanese woman, asian beauty, realistic, detailed face, natural makeup`;
         }
     }
-    }
     
     parseResponse(data) {
         if (data.candidates && data.candidates[0] && data.candidates[0].content) {
