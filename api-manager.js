@@ -207,21 +207,22 @@ class GeminiAPI {
     }
     
     buildSystemPrompt(keyword) {
-        return `あなたはStable Diffusionモデルに精通したエキスパートです。特にPrefect Illustrious XLなどのアニメ系モデルに特化したプロンプトを生成してください。
+        return `あなたはStable Diffusionモデルに精通したエキスパートです。特に人気モデル（Beautiful Realistic Asians、Prefect Illustrious XL、ReV Animated等）に最適化したプロンプトを生成してください。
 
 キーワード: ${keyword}
 
 生成ルール:
 - 3-8個の高品質プロンプトを出力
-- アニメ・イラスト系モデルに最適化
-- 特に女性キャラクターに特化した表現
+- リアル系・アニメ系両方に対応
+- 日本人・アジア人特化も考慮
+- 写実的、アニメ的両スタイルに対応
 - 品質向上タグと組み合わせて生成
 - プロンプトのみ出力（説明無し）
 
-アニメ系モデル向け例示:
-美しい女性 → beautiful girl, 1girl, masterpiece, best quality, detailed face, anime style
-笑顔 → smile, happy expression, cheerful, bright eyes, cute smile, joyful
-髪型 → long hair, flowing hair, beautiful hair, hair ornament, detailed hair`;
+モデル対応例示:
+美しい女性 → masterpiece, best quality, beautiful woman, detailed face, photorealistic, cinematic
+笑顔 → smile, happy expression, natural lighting, aesthetic, portrait, detailed
+日本人女性 → japanese woman, asian beauty, realistic, detailed face, natural makeup`;
     }
     
     parseResponse(data) {
