@@ -53,148 +53,140 @@ body {
     margin-bottom: 30px;
 }
 
-.model-url-section {
-    margin-top: 15px;
-    padding-top: 15px;
-    border-top: 1px solid #e9ecef;
-}
 
-.model-url-input {
-    width: 100%;
-    padding: 12px 15px;
-    border: 2px solid #e1e5e9;
-    border-radius: 8px;
-    font-size: 0.95rem;
-    transition: border-color 0.3s;
-    background: #f8f9fa;
-}
-
-.model-url-input:focus {
-    outline: none;
-    border-color: #667eea;
-    background: white;
-}
-
-.model-url-hint {
-    display: block;
-    font-size: 0.8rem;
-    color: #888;
-    margin-top: 5px;
-    font-style: italic;
-}
-
-/* モデル選択機能 */
+/* 新しいモデル選択機能 */
 .model-selector {
-    margin-bottom: 25px;
-    padding: 20px;
-    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-    border-radius: 15px;
-    border: 2px solid #dee2e6;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-}
-
-.model-label {
-    display: block;
-    font-weight: 700;
-    margin-bottom: 15px;
-    color: #2c3e50;
-    font-size: 1.1rem;
-    text-align: center;
-}
-
-.model-options {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 20px;
-    max-width: 600px;
-    margin: 0 auto;
-}
-
-.model-option {
-    cursor: pointer;
-    position: relative;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    text-align: center;
-    padding: 20px 15px;
+    margin-bottom: 30px;
+    padding: 25px;
     background: white;
+    border-radius: 16px;
+    border: 2px solid #e9ecef;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+}
+
+.model-title {
+    text-align: center;
+    margin-bottom: 20px;
+    color: #2c3e50;
+    font-size: 1.2rem;
+    font-weight: 600;
+}
+
+.model-toggle {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 20px;
+}
+
+.model-toggle input[type="radio"] {
+    display: none;
+}
+
+.toggle-option {
+    flex: 1;
+    cursor: pointer;
+    padding: 20px;
     border: 3px solid #dee2e6;
     border-radius: 12px;
     transition: all 0.3s ease;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    text-align: center;
+    background: #f8f9fa;
+    position: relative;
 }
 
-.model-option:hover {
-    border-color: #667eea;
-    box-shadow: 0 4px 16px rgba(102, 126, 234, 0.15);
+.toggle-option:hover {
+    border-color: #007bff;
     transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(0,123,255,0.15);
 }
 
-.model-option input[type="radio"] {
-    position: absolute;
-    top: 12px;
-    right: 12px;
-    width: 20px;
-    height: 20px;
-    accent-color: #667eea;
+.option-header {
+    margin-bottom: 10px;
 }
 
-.model-option input[type="radio"]:checked + .model-option-text {
-    color: #667eea;
+.option-icon {
+    font-size: 2rem;
+    display: block;
+    margin-bottom: 8px;
 }
 
-.model-option:has(input:checked) {
-    border-color: #667eea;
-    background: linear-gradient(135deg, #f0f2ff 0%, #e6eaff 100%);
-    box-shadow: 0 4px 16px rgba(102, 126, 234, 0.2);
+.option-title {
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: #2c3e50;
+    display: block;
+}
+
+.option-description {
+    font-size: 0.9rem;
+    color: #6c757d;
+    line-height: 1.4;
+}
+
+.option-description strong {
+    color: #495057;
+    font-weight: 600;
+}
+
+/* SD1.5 スタイル */
+.sd15-option {
+    border-left: 5px solid #28a745;
+}
+
+.sd15-option:hover {
+    border-color: #28a745;
+    box-shadow: 0 8px 25px rgba(40,167,69,0.15);
+}
+
+#model-sd15:checked + .sd15-option {
+    background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);
+    border-color: #28a745;
+    box-shadow: 0 8px 25px rgba(40,167,69,0.2);
     transform: scale(1.02);
 }
 
-.model-option-text {
-    margin-top: 8px;
+#model-sd15:checked + .sd15-option .option-title {
+    color: #155724;
 }
 
-.model-option-text strong {
-    font-size: 1.1rem;
-    display: block;
-    margin-bottom: 8px;
-    color: #2c3e50;
+/* Illustrious XL スタイル */
+.illustrious-option {
+    border-left: 5px solid #e83e8c;
 }
 
-.model-option-text small {
-    font-size: 0.85rem;
-    color: #6c757d;
-    line-height: 1.4;
-    display: block;
-    margin-top: 5px;
+.illustrious-option:hover {
+    border-color: #e83e8c;
+    box-shadow: 0 8px 25px rgba(232,62,140,0.15);
 }
 
-.model-option::before {
-    content: '';
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    margin-bottom: 10px;
-    position: relative;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+#model-illustrious:checked + .illustrious-option {
+    background: linear-gradient(135deg, #f8d7da 0%, #f1b0b7 100%);
+    border-color: #e83e8c;
+    box-shadow: 0 8px 25px rgba(232,62,140,0.2);
+    transform: scale(1.02);
 }
 
-.model-option[data-model="sd15"]::before {
-    background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
-    content: '📷';
-    font-size: 20px;
-    color: white;
+#model-illustrious:checked + .illustrious-option .option-title {
+    color: #721c24;
 }
 
-.model-option[data-model="illustrious"]::before {
-    background: linear-gradient(135deg, #e83e8c 0%, #fd7e14 100%);
-    content: '🎨';
-    font-size: 20px;
-    color: white;
+/* 例示表示 */
+.model-examples {
+    background: #f8f9fa;
+    padding: 15px;
+    border-radius: 8px;
+    border-left: 4px solid #007bff;
+}
+
+.example-text {
+    font-size: 0.9rem;
+    color: #495057;
+    line-height: 1.5;
+}
+
+.example-text strong {
+    color: #007bff;
+    font-weight: 600;
 }
 
 .input-group {
@@ -329,27 +321,29 @@ body {
         border-radius: 15px;
     }
     
-    .model-options {
-        grid-template-columns: 1fr;
-        gap: 15px;
+    .model-toggle {
+        flex-direction: column;
+        gap: 12px;
     }
     
-    .model-option {
-        padding: 18px 12px;
+    .toggle-option {
+        padding: 15px;
     }
     
-    .model-option::before {
-        width: 35px;
-        height: 35px;
-        font-size: 18px;
+    .option-icon {
+        font-size: 1.5rem;
     }
     
-    .model-label {
-        font-size: 1rem;
+    .option-title {
+        font-size: 1.1rem;
+    }
+    
+    .model-title {
+        font-size: 1.1rem;
     }
     
     .model-selector {
-        padding: 18px;
+        padding: 20px;
     }
     
     .title {

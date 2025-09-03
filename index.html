@@ -16,22 +16,36 @@
         
         <div class="input-section">
             <div class="model-selector">
-                <label class="model-label">🎨 モデルタイプを選択:</label>
-                <div class="model-options">
-                    <label class="model-option" data-model="sd15">
-                        <input type="radio" name="model-type" value="sd15" checked onchange="updateModelDisplay()">
-                        <span class="model-option-text">
-                            <strong>SD 1.5</strong>
-                            <small>写実系・リアル系モデル<br>フォトリアリスティックな画像生成</small>
-                        </span>
+                <h3 class="model-title">🎨 使用するモデルを選んでください</h3>
+                <div class="model-toggle">
+                    <input type="radio" name="model-type" value="sd15" id="model-sd15" checked onchange="updateModelDisplay()">
+                    <label for="model-sd15" class="toggle-option sd15-option">
+                        <div class="option-header">
+                            <span class="option-icon">📷</span>
+                            <span class="option-title">SD 1.5</span>
+                        </div>
+                        <div class="option-description">
+                            写真のようなリアルな画像<br>
+                            <strong>人物・風景・写真風</strong>
+                        </div>
                     </label>
-                    <label class="model-option" data-model="illustrious">
-                        <input type="radio" name="model-type" value="illustrious" onchange="updateModelDisplay()">
-                        <span class="model-option-text">
-                            <strong>Illustrious XL</strong>
-                            <small>アニメ・イラスト系モデル<br>高品質アニメスタイル画像</small>
-                        </span>
+                    
+                    <input type="radio" name="model-type" value="illustrious" id="model-illustrious" onchange="updateModelDisplay()">
+                    <label for="model-illustrious" class="toggle-option illustrious-option">
+                        <div class="option-header">
+                            <span class="option-icon">🎨</span>
+                            <span class="option-title">Illustrious XL</span>
+                        </div>
+                        <div class="option-description">
+                            アニメ・イラストスタイル<br>
+                            <strong>アニメキャラ・イラスト</strong>
+                        </div>
                     </label>
+                </div>
+                <div class="model-examples" id="model-examples">
+                    <div class="example-text">
+                        <strong>例:</strong> 「美しい女性」→ beautiful woman, photorealistic, detailed face, cinematic lighting
+                    </div>
                 </div>
             </div>
             
@@ -55,8 +69,8 @@
         </div>
     </div>
     
-    <script src="config.js?v=2.8"></script>
-    <script src="api-manager.js?v=2.8"></script>
-    <script src="script.js?v=2.8"></script>
+    <script src="config.js?v=2.9"></script>
+    <script src="api-manager.js?v=2.9"></script>
+    <script src="script.js?v=2.9"></script>
 </body>
 </html>
