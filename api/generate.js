@@ -34,35 +34,45 @@ export default async function handler(req, res) {
     // Build system prompt based on model type
     let systemPrompt;
     if (modelType === 'illustrious') {
-        systemPrompt = `Create 5-8 Stable Diffusion prompts based on the keyword "${keyword}" for Illustrious XL (anime style).
+        systemPrompt = `Create 5-8 Stable Diffusion prompts for Illustrious XL based on the Japanese keyword "${keyword}".
 
-IMPORTANT: Each prompt MUST include or relate to "${keyword}".
+IMPORTANT: 
+1. Translate "${keyword}" to appropriate English SD terms
+2. Create realistic, usable prompts focused on the concept
+3. Use proper SD syntax and proven effective tags
 
-Format: Create detailed prompts that incorporate the keyword "${keyword}" with these elements:
-- Quality tags: masterpiece, best quality, amazing quality  
-- Anime style elements
-- Character count when relevant (1girl, 1boy, etc.)
-- Detailed descriptions relating to "${keyword}"
+Rules:
+- Convert Japanese concepts to English SD terms
+- Focus on visual descriptions, not abstract concepts  
+- Include: character count (1girl/1boy), pose, expression, clothing, setting
+- Quality tags: masterpiece, best quality (only if appropriate)
+- Avoid repeating the original Japanese word
 
-Example format:
-"masterpiece, best quality, ${keyword}, anime style, detailed, [specific details about ${keyword}]"
+Example transformation:
+可愛い子 → "1girl, cute young girl, adorable expression, big eyes, soft features, anime style"
+笑顔 → "1girl, bright smile, happy expression, cheerful face, joyful"
 
-Generate exactly 5-8 prompts, each on a new line:`;
+Generate 5-8 practical SD prompts:`;
     } else {
-        systemPrompt = `Create 5-8 Stable Diffusion prompts based on the keyword "${keyword}" for SD 1.5 (realistic/anime mixed).
+        systemPrompt = `Create 5-8 Stable Diffusion prompts for SD 1.5 based on the Japanese keyword "${keyword}".
 
-IMPORTANT: Each prompt MUST include or relate to "${keyword}".
+IMPORTANT: 
+1. Translate "${keyword}" to appropriate English SD terms
+2. Create realistic, usable prompts focused on the concept
+3. Use proper SD 1.5 syntax and proven effective tags
 
-Format: Create detailed prompts that incorporate the keyword "${keyword}" with these elements:
-- Quality tags: photorealistic, cinematic, aesthetic, best quality
-- Realistic or anime style elements  
-- Detailed descriptions relating to "${keyword}"
-- Natural lighting and composition
+Rules:
+- Convert Japanese concepts to English SD terms
+- Mix realistic and anime styles appropriately
+- Include: composition, lighting, style, detailed visual elements
+- Quality tags: photorealistic, cinematic, detailed (only when relevant)
+- Avoid repeating the original Japanese word
 
-Example format:
-"${keyword}, photorealistic, detailed, cinematic lighting, [specific details about ${keyword}]"
+Example transformation:
+可愛い子 → "young girl, cute face, soft features, natural lighting, portrait photography"
+風景 → "landscape photography, natural scenery, outdoor view, scenic composition"
 
-Generate exactly 5-8 prompts, each on a new line:`;
+Generate 5-8 practical SD prompts:`;
     }
 
     console.log('DEBUG: Generated system prompt:', systemPrompt);
