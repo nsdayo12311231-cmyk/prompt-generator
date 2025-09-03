@@ -34,45 +34,47 @@ export default async function handler(req, res) {
     // Build system prompt based on model type
     let systemPrompt;
     if (modelType === 'illustrious') {
-        systemPrompt = `日本語キーワード「${keyword}」に基づいて、Illustrious XL用のStable Diffusionプロンプトを5-8個作成してください。
+        systemPrompt = `あなたは実用的なStable Diffusion (amanatsu対応) プロンプト生成の専門家です。
 
-重要な指示:
-1. 「${keyword}」を適切な英語のSD用語に翻訳する
-2. コンセプトに焦点を当てた現実的で使用可能なプロンプトを作成する
-3. 適切なSD構文と実証済みの効果的なタグを使用する
+日本語キーワード「${keyword}」から実用的なIllustrious XLプロンプトを5-8個作成してください。
 
-ルール:
-- 日本語キーワードを1-2個の核となる英単語に翻訳
-- その核となる用語を中心にシンプルで効果的なプロンプトを構築
-- 基本的なSD要素を含める: キャラクター数、スタイル、主要な視覚的特徴
-- 品質タグ: masterpiece, best quality (控えめに使用)
-- プロンプトを簡潔で焦点を絞ったものにする
+## 作成手順:
+1. キーワード「${keyword}」の核となる英語表現を特定
+2. 関連する具体的なタグを組み合わせる
+3. 実際のSD生成で効果的な単語のみを使用
 
-変換例:
-可愛い子 → 核となる単語 "cute" → "1girl, cute, anime style, soft features"
-笑顔 → 核となる単語 "smile" → "1girl, smile, happy expression, anime"
+## 必須要素:
+- 基本タグ: 1girl/1boy, masterpiece, best quality
+- 具体的な視覚描写 (表情・ポーズ・服装・背景等)
+- キーワードに対応する専門用語
 
-実用的なSDプロンプトを5-8個生成してください:`;
+## タグ例参考:
+**表情**: seductive smile, smirk, half-closed eyes, confident expression
+**ポーズ**: side glance, looking back, over the shoulder, scratching head
+**背景**: beach, ocean, sandy beach, horizon, blue sky
+
+実際にSDで生成可能な具体的プロンプト5-8個を出力:`;
     } else {
-        systemPrompt = `日本語キーワード「${keyword}」に基づいて、SD 1.5用のStable Diffusionプロンプトを5-8個作成してください。
+        systemPrompt = `あなたは実用的なStable Diffusion 1.5プロンプト生成の専門家です。
 
-重要な指示:
-1. 「${keyword}」を適切な英語のSD用語に翻訳する
-2. コンセプトに焦点を当てた現実的で使用可能なプロンプトを作成する
-3. 適切なSD 1.5構文と実証済みの効果的なタグを使用する
+日本語キーワード「${keyword}」から実用的なSD 1.5プロンプトを5-8個作成してください。
 
-ルール:
-- 日本語キーワードを1-2個の核となる英単語に翻訳
-- その核となる用語を中心にシンプルで効果的なプロンプトを構築
-- 基本的なSD要素を含める: スタイル、構図、照明
-- 品質タグ: photorealistic, detailed (控えめに使用)
-- プロンプトを簡潔で焦点を絞ったものにする
+## 作成手順:
+1. キーワード「${keyword}」の核となる英語表現を特定
+2. リアル系・アニメ系の両方に対応する具体的なタグを組み合わせる
+3. 実際のSD 1.5生成で効果的な単語のみを使用
 
-変換例:
-可愛い子 → 核となる単語 "cute" → "cute girl, soft lighting, portrait"
-風景 → 核となる単語 "landscape" → "landscape, natural scenery, outdoor"
+## 必須要素:
+- 基本タグ: photorealistic/anime style, detailed, high quality
+- 具体的な視覚描写 (構図・照明・スタイル等)
+- キーワードに対応する専門用語
 
-実用的なSDプロンプトを5-8個生成してください:`;
+## タグ例参考:
+**人物**: young girl, cute face, soft features, natural lighting
+**風景**: landscape photography, natural scenery, outdoor view, scenic composition
+**照明**: soft lighting, natural lighting, cinematic lighting
+
+実際にSD 1.5で生成可能な具体的プロンプト5-8個を出力:`;
     }
 
     console.log('DEBUG: Generated system prompt:', systemPrompt);
