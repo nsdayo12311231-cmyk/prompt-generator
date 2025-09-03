@@ -7,7 +7,7 @@ const API_CONFIG = {
         API_KEY: 'AIzaSyDCQ8Zik-G0IG_e_B8EItEAtN8VhynPLhQ',
         ENDPOINT: 'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent',
         MAX_REQUESTS_PER_MINUTE: 15,
-        ENABLED: true
+        ENABLED: false  // 一時的に無効化
     },
     
     // フォールバック: OpenAI GPT
@@ -21,7 +21,7 @@ const API_CONFIG = {
     
     // システム設定
     SYSTEM: {
-        DEFAULT_API: 'GEMINI',
+        DEFAULT_API: 'OPENAI',  // OpenAIを優先に変更
         FALLBACK_ENABLED: true,
         REQUEST_TIMEOUT: 10000, // 10秒
         RETRY_COUNT: 2
