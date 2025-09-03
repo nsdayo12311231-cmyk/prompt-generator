@@ -170,38 +170,6 @@ class APIManager {
             stats
         };
     }
-    
-    // 翻訳専用メソッド
-    async translateText(translationPrompt) {
-        const requestBody = {
-            contents: [{
-                parts: [{
-                    text: translationPrompt
-                }]
-            }]
-        };
-        
-        const response = await fetch(`${this.config.ENDPOINT}?key=${this.config.API_KEY}`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(requestBody)
-        });
-        
-        if (!response.ok) {
-            throw new Error(`Gemini翻訳APIエラー: ${response.status} ${response.statusText}`);
-        }
-        
-        const data = await response.json();
-        
-        if (data.candidates && data.candidates[0] && data.candidates[0].content) {
-            const translatedText = data.candidates[0].content.parts[0].text.trim();
-            return translatedText;
-        } else {
-            throw new Error('翻訳APIからの応答が不正です');
-        }
-    }
 }
 
 // Gemini API実装
@@ -270,6 +238,38 @@ class GeminiAPI {
             return prompts;
         } else {
             throw new Error('Gemini APIからの応答が不正です');
+        }
+    }
+    
+    // 翻訳専用メソッド
+    async translateText(translationPrompt) {
+        const requestBody = {
+            contents: [{
+                parts: [{
+                    text: translationPrompt
+                }]
+            }]
+        };
+        
+        const response = await fetch(`${this.config.ENDPOINT}?key=${this.config.API_KEY}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(requestBody)
+        });
+        
+        if (!response.ok) {
+            throw new Error(`Gemini翻訳APIエラー: ${response.status} ${response.statusText}`);
+        }
+        
+        const data = await response.json();
+        
+        if (data.candidates && data.candidates[0] && data.candidates[0].content) {
+            const translatedText = data.candidates[0].content.parts[0].text.trim();
+            return translatedText;
+        } else {
+            throw new Error('翻訳APIからの応答が不正です');
         }
     }
     
