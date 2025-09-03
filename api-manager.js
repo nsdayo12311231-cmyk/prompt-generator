@@ -16,16 +16,22 @@ class APIManager {
             this.apis.push(new GeminiAPI());
         }
         
-        // OpenAI API
-        if (API_CONFIG.OPENAI.ENABLED) {
-            this.apis.push(new OpenAIAPI());
+    }
+    
+    // 翻訳専用API呼び出し
+    async callTranslationAPI(translationPrompt) {
+        if (this.apis.length === 0) {
+            throw new Error('利用可能なAPIがありません');
         }
         
-        // Claude API  
-        if (API_CONFIG.CLAUDE.ENABLED) {
-            this.apis.push(new ClaudeAPI());
-        }
+        const api = this.apis[this.currentAPIIndex];
         
+        try {
+            const result = await api.translateText(translationPrompt);
+            return result;
+        } catch (error) {
+            throw error;
+        }
     }
     
     // メインのプロンプト生成関数（フォールバック機能付き）
@@ -163,6 +169,38 @@ class APIManager {
             totalAPIs: this.apis.length,
             stats
         };
+    }
+    
+    // 翻訳専用メソッド
+    async translateText(translationPrompt) {
+        const requestBody = {
+            contents: [{
+                parts: [{
+                    text: translationPrompt
+                }]
+            }]
+        };
+        
+        const response = await fetch(`${this.config.ENDPOINT}?key=${this.config.API_KEY}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(requestBody)
+        });
+        
+        if (!response.ok) {
+            throw new Error(`Gemini翻訳APIエラー: ${response.status} ${response.statusText}`);
+        }
+        
+        const data = await response.json();
+        
+        if (data.candidates && data.candidates[0] && data.candidates[0].content) {
+            const translatedText = data.candidates[0].content.parts[0].text.trim();
+            return translatedText;
+        } else {
+            throw new Error('翻訳APIからの応答が不正です');
+        }
     }
 }
 

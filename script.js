@@ -106,7 +106,7 @@ async function displayPrompts(prompts) {
                 </button>
             `;
         } catch (error) {
-            // エラー時は元の単語を表示
+            // 翻訳エラー時は元の単語を表示
             promptCard.querySelector('.prompt-translation').textContent = `(${prompt.trim()})`;
         }
     });
@@ -115,7 +115,7 @@ async function displayPrompts(prompts) {
     await Promise.all(translationPromises);
 }
 
-// 英語プロンプトを日本語に翻訳（軽量版）
+// 英語プロンプトを日本語に翻訳（辞書+API）
 async function translateToJapanese(englishPrompt) {
     const translations = {
         'happy': '幸せな', 'sad': '悲しい', 'angry': '怒った', 'scared': '怖がった',
@@ -131,13 +131,54 @@ async function translateToJapanese(englishPrompt) {
     };
     
     const result = englishPrompt.toLowerCase().trim();
+    
+    // 辞書で完全一致をチェック
+    if (translations[result]) {
+        return translations[result];
+    }
+    
+    // 単語レベルで辞書チェック
     const words = result.split(/\s+/);
     const translatedWords = words.map(word => {
         const cleanWord = word.replace(/[^\w-]/g, '');
-        return translations[cleanWord] || translations[result] || cleanWord;
+        return translations[cleanWord] || cleanWord;
     });
     
-    return translations[result] || translatedWords.join(' ') || `(${englishPrompt})`;
+    const dictionaryResult = translatedWords.join(' ');
+    
+    // 辞書に未翻訳単語が残っている場合、APIで翻訳
+    const hasUntranslated = translatedWords.some(word => 
+        /^[a-z]+$/i.test(word) && word.length > 2
+    );
+    
+    if (hasUntranslated && apiManager) {
+        try {
+            const apiTranslation = await translateWithAPI(englishPrompt);
+            if (apiTranslation && apiTranslation !== englishPrompt) {
+                return apiTranslation;
+            }
+        } catch (error) {
+            // API失敗時は辞書結果を使用
+        }
+    }
+    
+    return dictionaryResult || `(${englishPrompt})`;
+}
+
+// API翻訳機能
+async function translateWithAPI(englishPrompt) {
+    if (!apiManager) {
+        return null;
+    }
+    
+    const translationPrompt = `以下の英語を自然な日本語に翻訳してください（翻訳結果のみ出力、説明不要）:
+${englishPrompt}`;
+    
+    try {
+        return await apiManager.callTranslationAPI(translationPrompt);
+    } catch (error) {
+        throw error;
+    }
 }
 
 
