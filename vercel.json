@@ -3,6 +3,12 @@
   "outputDirectory": ".",
   "cleanUrls": true,
   "trailingSlash": false,
+  "functions": {
+    "api/generate.js": {
+      "runtime": "@vercel/node@3",
+      "maxDuration": 30
+    }
+  },
   "headers": [
     {
       "source": "/(.*)",
