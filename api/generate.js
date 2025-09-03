@@ -42,15 +42,15 @@ IMPORTANT:
 3. Use proper SD syntax and proven effective tags
 
 Rules:
-- Convert Japanese concepts to English SD terms
-- Focus on visual descriptions, not abstract concepts  
-- Include: character count (1girl/1boy), pose, expression, clothing, setting
-- Quality tags: masterpiece, best quality (only if appropriate)
-- Avoid repeating the original Japanese word
+- Translate Japanese keyword to 1-2 core English words
+- Build simple, effective prompts around those core terms
+- Include basic SD elements: character count, style, key visual features
+- Quality tags: masterpiece, best quality (sparingly)
+- Keep prompts concise and focused
 
 Example transformation:
-可愛い子 → "1girl, cute young girl, adorable expression, big eyes, soft features, anime style"
-笑顔 → "1girl, bright smile, happy expression, cheerful face, joyful"
+可愛い子 → core word "cute" → "1girl, cute, anime style, soft features"
+笑顔 → core word "smile" → "1girl, smile, happy expression, anime"
 
 Generate 5-8 practical SD prompts:`;
     } else {
@@ -62,15 +62,15 @@ IMPORTANT:
 3. Use proper SD 1.5 syntax and proven effective tags
 
 Rules:
-- Convert Japanese concepts to English SD terms
-- Mix realistic and anime styles appropriately
-- Include: composition, lighting, style, detailed visual elements
-- Quality tags: photorealistic, cinematic, detailed (only when relevant)
-- Avoid repeating the original Japanese word
+- Translate Japanese keyword to 1-2 core English words
+- Build simple, effective prompts around those core terms
+- Include basic SD elements: style, composition, lighting
+- Quality tags: photorealistic, detailed (sparingly)
+- Keep prompts concise and focused
 
 Example transformation:
-可愛い子 → "young girl, cute face, soft features, natural lighting, portrait photography"
-風景 → "landscape photography, natural scenery, outdoor view, scenic composition"
+可愛い子 → core word "cute" → "cute girl, soft lighting, portrait"
+風景 → core word "landscape" → "landscape, natural scenery, outdoor"
 
 Generate 5-8 practical SD prompts:`;
     }
