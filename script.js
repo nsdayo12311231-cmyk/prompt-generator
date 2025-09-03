@@ -193,10 +193,16 @@ async function translateWithAPI(englishPrompt) {
         return null;
     }
     
-    // 簡潔なプロンプトでコスト減
-    const translationPrompt = `以下を自然な日本語に翻訳。SD画像生成用プロンプトです。翻訳のみ出力し、説明不要。
+    // Gemini 1.5 Flash用高精度プロンプト
+    const translationPrompt = `あなたはStable Diffusion画像生成に特化したAI翻訳アシスタントです。Gemini 1.5 Flashの高性能を活かし、以下の英語プロンプトを初心者にも理解しやすい自然な日本語に翻訳してください。
 
-"${englishPrompt}"`;
+翻訳ルール:
+- SD画像生成の文脈で最適化
+- 「〜な人」「〜している人」など自然な表現
+- 翻訳結果のみ出力
+
+英語: "${englishPrompt}"
+日本語:`;
     
     try {
         const result = await apiManager.callTranslationAPI(translationPrompt);

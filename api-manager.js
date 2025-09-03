@@ -207,19 +207,19 @@ class GeminiAPI {
     }
     
     buildSystemPrompt(keyword) {
-        return `日本語キーワードをStable Diffusion用の英語単語・短文に変換してください。
+        return `あなたはStable Diffusion画像生成のエキスパートです。Gemini 1.5 Flashの高性能を活かし、日本語キーワードから最適な英語プロンプトを生成してください。
 
 キーワード: ${keyword}
 
-要件:
-- 3-8個の候補を出力
-- 簡潔な単語または短文のみ
-- 改行で区切る
-- 説明不要
+生成ルール:
+- 3-8個の高品質な候補を出力
+- SDで効果的な簡潔な英語フレーズ
+- 改行またはカンマで区切り
+- プロンプトのみ出力（説明無し）
 
-例:
-頭 → head, portrait, face, hair, expression, closeup
-悲しい → sad, crying, melancholy, tears, depressed, sorrow, emotional`;
+例示:
+頭 → head, portrait, face closeup, hair detail, facial expression, bust shot
+悲しい → sad, crying, melancholy, tearful, depressed, sorrowful expression`;
     }
     
     parseResponse(data) {

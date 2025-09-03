@@ -34,6 +34,19 @@ body {
 .subtitle {
     color: #666;
     font-size: 1.1rem;
+    margin-bottom: 8px;
+}
+
+.model-info {
+    color: #888;
+    font-size: 0.9rem;
+    font-weight: 400;
+    opacity: 0.8;
+}
+
+.model-info strong {
+    color: #667eea;
+    font-weight: 600;
 }
 
 .input-section {
