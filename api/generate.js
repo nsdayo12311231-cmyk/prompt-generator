@@ -34,47 +34,43 @@ export default async function handler(req, res) {
     // Build system prompt based on model type
     let systemPrompt;
     if (modelType === 'illustrious') {
-        systemPrompt = `あなたは実用的なStable Diffusion (amanatsu対応) プロンプト生成の専門家です。
+        systemPrompt = `「${keyword}」を1つの英単語に変換してから、その単語をベースにしたシンプルなStable Diffusion プロンプトを5-8個作成してください。
 
-日本語キーワード「${keyword}」から実用的なIllustrious XLプロンプトを5-8個作成してください。
+## 変換ルール:
+1. 「${keyword}」→ 1つの核となる英単語 (例: 可愛い子 → cute)
+2. その1単語 + 基本的なSDタグのみで構成
+3. 長い説明文は不要、単語の羅列のみ
 
-## 作成手順:
-1. キーワード「${keyword}」の核となる英語表現を特定
-2. 関連する具体的なタグを組み合わせる
-3. 実際のSD生成で効果的な単語のみを使用
+## 出力形式:
+各プロンプトは以下の構造:
+[核となる英単語], 1girl/1boy, [基本タグ2-3個], [スタイルタグ]
 
-## 必須要素:
-- 基本タグ: 1girl/1boy, masterpiece, best quality
-- 具体的な視覚描写 (表情・ポーズ・服装・背景等)
-- キーワードに対応する専門用語
+## 例:
+可愛い子 → 核単語"cute"
+- cute, 1girl, masterpiece, anime
+- cute, 1girl, smile, soft_lighting
+- cute, 1girl, portrait, detailed
 
-## タグ例参考:
-**表情**: seductive smile, smirk, half-closed eyes, confident expression
-**ポーズ**: side glance, looking back, over the shoulder, scratching head
-**背景**: beach, ocean, sandy beach, horizon, blue sky
-
-実際にSDで生成可能な具体的プロンプト5-8個を出力:`;
+シンプルで実用的なプロンプト5-8個を生成:`;
     } else {
-        systemPrompt = `あなたは実用的なStable Diffusion 1.5プロンプト生成の専門家です。
+        systemPrompt = `「${keyword}」を1つの英単語に変換してから、その単語をベースにしたシンプルなSD 1.5プロンプトを5-8個作成してください。
 
-日本語キーワード「${keyword}」から実用的なSD 1.5プロンプトを5-8個作成してください。
+## 変換ルール:
+1. 「${keyword}」→ 1つの核となる英単語 (例: 可愛い子 → cute)
+2. その1単語 + 基本的なSDタグのみで構成
+3. 長い説明文は不要、単語の羅列のみ
 
-## 作成手順:
-1. キーワード「${keyword}」の核となる英語表現を特定
-2. リアル系・アニメ系の両方に対応する具体的なタグを組み合わせる
-3. 実際のSD 1.5生成で効果的な単語のみを使用
+## 出力形式:
+各プロンプトは以下の構造:
+[核となる英単語], [基本タグ2-3個], [スタイルタグ]
 
-## 必須要素:
-- 基本タグ: photorealistic/anime style, detailed, high quality
-- 具体的な視覚描写 (構図・照明・スタイル等)
-- キーワードに対応する専門用語
+## 例:
+可愛い子 → 核単語"cute"
+- cute, portrait, photorealistic, detailed
+- cute, girl, soft_lighting, natural
+- cute, face, cinematic, high_quality
 
-## タグ例参考:
-**人物**: young girl, cute face, soft features, natural lighting
-**風景**: landscape photography, natural scenery, outdoor view, scenic composition
-**照明**: soft lighting, natural lighting, cinematic lighting
-
-実際にSD 1.5で生成可能な具体的プロンプト5-8個を出力:`;
+シンプルで実用的なプロンプト5-8個を生成:`;
     }
 
     console.log('DEBUG: Generated system prompt:', systemPrompt);
