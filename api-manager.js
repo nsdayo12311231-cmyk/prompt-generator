@@ -26,6 +26,14 @@ class APIManager {
         
         const api = this.apis[this.currentAPIIndex];
         
+        // レート制限チェック
+        if (!this.checkRateLimit(api.name)) {
+            throw new Error('翻訳API制限に達しています');
+        }
+        
+        // リクエスト数をカウント
+        this.incrementRequestCount(api.name);
+        
         try {
             const result = await api.translateText(translationPrompt);
             return result;
@@ -72,14 +80,14 @@ class APIManager {
                     throw new Error('レート制限に達しています');
                 }
                 
+                // リクエスト数をカウント（API呼び出し前）
+                this.incrementRequestCount(api.name);
+                
                 // API呼び出し実行
                 const result = await Promise.race([
                     api.generatePrompt(keyword, modelType),
                     this.timeoutPromise(API_CONFIG.SYSTEM.REQUEST_TIMEOUT)
                 ]);
-                
-                // リクエスト数をカウント
-                this.incrementRequestCount(api.name);
                 
                 return result;
                 
@@ -179,7 +187,7 @@ class GeminiAPI {
         this.config = API_CONFIG.GEMINI;
     }
     
-    async generatePrompt(keyword, modelType = 'sd15', retryCount = 0, maxRetries = 3) {
+    async generatePrompt(keyword, modelType = 'sd15') {
         const prompt = this.buildSystemPrompt(keyword, modelType);
         
         const requestBody = {
@@ -190,52 +198,20 @@ class GeminiAPI {
             }]
         };
         
-        try {
-            const response = await fetch(`${this.config.ENDPOINT}?key=${this.config.API_KEY}`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(requestBody)
-            });
-            
-            if (!response.ok) {
-                if (response.status === 429 && retryCount < maxRetries) {
-                    // 429 Too Many Requests の場合はリトライ
-                    const baseDelay = 2000; // 2秒（プロンプト生成は少し長めの待機）
-                    const exponentialDelay = baseDelay * Math.pow(2, retryCount);
-                    const jitter = Math.random() * 1000;
-                    const totalDelay = exponentialDelay + jitter;
-                    
-                    console.log(`Gemini generatePrompt rate limit hit. Retrying in ${Math.round(totalDelay)}ms (attempt ${retryCount + 1}/${maxRetries + 1})`);
-                    
-                    await new Promise(resolve => setTimeout(resolve, totalDelay));
-                    return this.generatePrompt(keyword, modelType, retryCount + 1, maxRetries);
-                }
-                
-                if (response.status === 429) {
-                    throw new Error(`Rate limit exceeded. Please wait and try again later.`);
-                }
-                throw new Error(`Gemini API エラー: ${response.status} ${response.statusText}`);
-            }
-            
-            const data = await response.json();
-            return this.parseResponse(data);
-        } catch (error) {
-            if (error.message.includes('429') && retryCount < maxRetries) {
-                // 429エラーの場合はリトライ
-                const baseDelay = 2000;
-                const exponentialDelay = baseDelay * Math.pow(2, retryCount);
-                const jitter = Math.random() * 1000;
-                const totalDelay = exponentialDelay + jitter;
-                
-                console.log(`Gemini generatePrompt error (429). Retrying in ${Math.round(totalDelay)}ms (attempt ${retryCount + 1}/${maxRetries + 1})`);
-                
-                await new Promise(resolve => setTimeout(resolve, totalDelay));
-                return this.generatePrompt(keyword, modelType, retryCount + 1, maxRetries);
-            }
-            throw error;
+        const response = await fetch(`${this.config.ENDPOINT}?key=${this.config.API_KEY}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(requestBody)
+        });
+        
+        if (!response.ok) {
+            throw new Error(`Gemini API エラー: ${response.status} ${response.statusText}`);
         }
+        
+        const data = await response.json();
+        return this.parseResponse(data);
     }
     
     buildSystemPrompt(keyword, modelType = 'sd15') {
@@ -295,8 +271,8 @@ SD 1.5例示:
         }
     }
     
-    // 翻訳専用メソッド（リトライ機能付き）
-    async translateText(translationPrompt, retryCount = 0, maxRetries = 3) {
+    // 翻訳専用メソッド
+    async translateText(translationPrompt) {
         const requestBody = {
             contents: [{
                 parts: [{
@@ -305,53 +281,25 @@ SD 1.5例示:
             }]
         };
         
-        try {
-            const response = await fetch(`${this.config.ENDPOINT}?key=${this.config.API_KEY}`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(requestBody)
-            });
-            
-            if (!response.ok) {
-                if (response.status === 429 && retryCount < maxRetries) {
-                    // 429 Too Many Requests の場合はリトライ
-                    const baseDelay = 1000; // 1秒
-                    const exponentialDelay = baseDelay * Math.pow(2, retryCount);
-                    const jitter = Math.random() * 1000; // ランダムなジッター追加
-                    const totalDelay = exponentialDelay + jitter;
-                    
-                    console.log(`Gemini API rate limit hit. Retrying in ${Math.round(totalDelay)}ms (attempt ${retryCount + 1}/${maxRetries + 1})`);
-                    
-                    await new Promise(resolve => setTimeout(resolve, totalDelay));
-                    return this.translateText(translationPrompt, retryCount + 1, maxRetries);
-                }
-                throw new Error(`Gemini翻訳APIエラー: ${response.status} ${response.statusText}`);
-            }
-            
-            const data = await response.json();
-            
-            if (data.candidates && data.candidates[0] && data.candidates[0].content) {
-                const translatedText = data.candidates[0].content.parts[0].text.trim();
-                return translatedText;
-            } else {
-                throw new Error('翻訳APIからの応答が不正です');
-            }
-        } catch (error) {
-            if (error.message.includes('429') && retryCount < maxRetries) {
-                // 429エラーの場合はリトライ
-                const baseDelay = 1000;
-                const exponentialDelay = baseDelay * Math.pow(2, retryCount);
-                const jitter = Math.random() * 1000;
-                const totalDelay = exponentialDelay + jitter;
-                
-                console.log(`Gemini API error (429). Retrying in ${Math.round(totalDelay)}ms (attempt ${retryCount + 1}/${maxRetries + 1})`);
-                
-                await new Promise(resolve => setTimeout(resolve, totalDelay));
-                return this.translateText(translationPrompt, retryCount + 1, maxRetries);
-            }
-            throw error;
+        const response = await fetch(`${this.config.ENDPOINT}?key=${this.config.API_KEY}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(requestBody)
+        });
+        
+        if (!response.ok) {
+            throw new Error(`Gemini翻訳APIエラー: ${response.status} ${response.statusText}`);
+        }
+        
+        const data = await response.json();
+        
+        if (data.candidates && data.candidates[0] && data.candidates[0].content) {
+            const translatedText = data.candidates[0].content.parts[0].text.trim();
+            return translatedText;
+        } else {
+            throw new Error('翻訳APIからの応答が不正です');
         }
     }
     
