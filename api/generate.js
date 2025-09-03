@@ -32,7 +32,7 @@ export default async function handler(req, res) {
     // Build system prompt based on model type
     let systemPrompt;
     if (modelType === 'illustrious') {
-        systemPrompt = `Generate 3-8 high-quality Stable Diffusion prompts optimized for Illustrious XL model (anime/illustration style).
+        systemPrompt = `Generate 5-8 high-quality Stable Diffusion prompts optimized for Illustrious XL model (anime/illustration style).
 
 Keyword: ${keyword}
 
@@ -41,13 +41,15 @@ Rules:
 - Include quality tags: masterpiece, best quality, amazing quality
 - Include count tags like 1girl, 1boy when appropriate
 - Use anime-specific expressions
+- Generate exactly 5-8 prompts maximum
+- Focus on high-quality detailed descriptions
 - Output prompts only (no explanations)
 
 Examples:
 beautiful woman → masterpiece, best quality, 1girl, beautiful, anime style, detailed face
 smile → smile, happy, cheerful, bright expression, anime, cute`;
     } else {
-        systemPrompt = `Generate 3-8 high-quality Stable Diffusion prompts optimized for SD 1.5 models (realistic/anime mixed).
+        systemPrompt = `Generate 5-8 high-quality Stable Diffusion prompts optimized for SD 1.5 models (realistic/anime mixed).
 
 Keyword: ${keyword}
 
@@ -55,6 +57,8 @@ Rules:
 - SD 1.5 optimization for realistic and anime styles
 - Include quality tags: photorealistic, cinematic, aesthetic
 - Consider Japanese/Asian specialization
+- Generate exactly 5-8 prompts maximum
+- Focus on high-quality detailed descriptions
 - Output prompts only (no explanations)
 
 Examples:
@@ -82,7 +86,7 @@ smile → smile, happy expression, natural lighting, aesthetic, joyful`;
                     }
                 ],
                 max_tokens: 1000,
-                temperature: 0.7
+                temperature: 0.2
             })
         });
 
@@ -101,7 +105,8 @@ smile → smile, happy expression, natural lighting, aesthetic, joyful`;
             const prompts = generatedText
                 .split(/[\n,]+/)
                 .map(prompt => prompt.trim())
-                .filter(prompt => prompt.length > 0 && !prompt.includes('Keyword') && !prompt.includes('Example'));
+                .filter(prompt => prompt.length > 0 && !prompt.includes('Keyword') && !prompt.includes('Example'))
+                .slice(0, 10);
             
             if (prompts.length === 0) {
                 return res.status(500).json({ error: '有効なプロンプトが生成されませんでした' });
